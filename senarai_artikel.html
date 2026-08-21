@@ -3,22 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- KOD ANTI-CACHE (PAKSA BACA DARI INTERNET) -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
-    <title>Login - Sistem Operasi Kilang</title>
-    <!-- ... kod style kau yang lain ... -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senarai Artikel & Detail</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; color: #333; }
+        
+        /* HEADER KEMASKINI - TUKAR KE TULISAN KEMBALI */
         .header { background: #0056b3; color: white; padding: 15px 20px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .header h1 { margin: 0; font-size: 18px; margin-left: 15px; }
-        .btn-back { color: white; text-decoration: none; font-size: 20px; font-weight: bold; cursor: pointer; display: none; }
+        .btn-back { color: white; text-decoration: none; font-size: 16px; font-weight: bold; cursor: pointer; margin-right: 15px; }
+        .header h1 { margin: 0; font-size: 18px; }
+
         .container { padding: 20px; }
         
         /* MUKA SURAT 1: SENARAI */
@@ -44,7 +38,12 @@
 <body>
 
     <div class="header">
-        <a id="btnBack" class="btn-back" onclick="kembaliKeSenarai()">❮</a>
+        <!-- Butang 1: Kembali ke Menu Manager -->
+        <a href="menu_manager.html" id="btnBackMenu" class="btn-back">❮ Kembali</a>
+        
+        <!-- Butang 2: Kembali ke Senarai (Tersembunyi pada asalnya) -->
+        <a id="btnBackList" class="btn-back" onclick="kembaliKeSenarai()" style="display: none;">❮ Kembali</a>
+        
         <h1 id="headerTitle">Senarai Artikel</h1>
     </div>
 
@@ -54,7 +53,7 @@
             <input type="text" id="searchInput" class="search-box" placeholder="🔍 Cari Artikel..." onkeyup="tapisCarian()">
             <div id="loadingMsg">⏳ Sedang memuat turun data dari Google Sheets...</div>
             <div id="senaraiContainer">
-                <!-- Data dari Google Sheets akan masuk di sini -->
+                <!-- Data akan dipaparkan di sini -->
             </div>
         </div>
 
@@ -73,10 +72,10 @@
     </div>
 
     <script>
-        // GANTIKAN URL DI BAWAH DENGAN WEB APP URL KAU
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
+        // PASTIKAN KAU GANTI URL DI BAWAH NI BALIK DENGAN URL APPS SCRIPT KAU
+        const WEB_APP_URL = "SILA_LETAK_URL_WEB_APP_ANDA_DI_SINI";
 
-        // Tarik data sebaik sahaja fail dibuka
+        // Tarik data dari Google Sheets
         window.onload = function() {
             fetch(WEB_APP_URL + "?action=getArticles")
             .then(response => response.json())
@@ -85,10 +84,8 @@
                 let container = document.getElementById("senaraiContainer");
                 
                 data.forEach(item => {
-                    // Cipta kad untuk setiap baris di Google Sheets
                     let kad = document.createElement("div");
                     kad.className = "list-card";
-                    // Fungsi hantar data ke page detail bila ditekan
                     kad.onclick = function() { bukaDetail(item.No_Artikel, item.Nama_Produk, item.Qty_Per_Bundle, item.Qty_Per_Pallet, item.Total_Weight_Pallet, item.Saiz_Pallet); };
                     
                     kad.innerHTML = `
@@ -106,7 +103,7 @@
             });
         }
 
-        // Fungsi carian (Search Filter)
+        // Fungsi carian
         function tapisCarian() {
             let input = document.getElementById("searchInput").value.toUpperCase();
             let cards = document.getElementsByClassName("list-card");
@@ -117,12 +114,15 @@
             }
         }
 
-        // Fungsi SPA (Pertukaran Skrin)
+        // Buka Detail Artikel
         function bukaDetail(id, desc, bundle, pallet, weight, size) {
             document.getElementById("pageList").style.display = "none";
             document.getElementById("pageDetail").style.display = "block";
             document.getElementById("headerTitle").innerText = "Detail Artikel";
-            document.getElementById("btnBack").style.display = "block";
+            
+            // Pertukaran Butang: Tutup butang ke Menu, Buka butang ke Senarai
+            document.getElementById("btnBackMenu").style.display = "none";
+            document.getElementById("btnBackList").style.display = "block";
 
             document.getElementById("lblArtId").innerText = id;
             document.getElementById("lblArtDesc").innerText = desc;
@@ -132,11 +132,15 @@
             document.getElementById("lblSize").innerText = size;
         }
 
+        // Patah Balik Ke Senarai
         function kembaliKeSenarai() {
             document.getElementById("pageDetail").style.display = "none";
             document.getElementById("pageList").style.display = "block";
             document.getElementById("headerTitle").innerText = "Senarai Artikel";
-            document.getElementById("btnBack").style.display = "none";
+            
+            // Pertukaran Butang: Buka balik butang ke Menu, Tutup butang ke Senarai
+            document.getElementById("btnBackMenu").style.display = "block";
+            document.getElementById("btnBackList").style.display = "none";
         }
     </script>
 </body>
