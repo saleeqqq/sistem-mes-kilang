@@ -8,14 +8,12 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; color: #333; }
         
-        /* HEADER KEMASKINI - TUKAR KE TULISAN KEMBALI */
         .header { background: #0056b3; color: white; padding: 15px 20px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .btn-back { color: white; text-decoration: none; font-size: 16px; font-weight: bold; cursor: pointer; margin-right: 15px; }
         .header h1 { margin: 0; font-size: 18px; }
 
         .container { padding: 20px; }
         
-        /* MUKA SURAT 1: SENARAI */
         #pageList { display: block; }
         .search-box { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; box-sizing: border-box; margin-bottom: 20px; }
         .list-card { background: white; border-radius: 8px; margin-bottom: 10px; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
@@ -24,26 +22,21 @@
         .arrow-icon { color: #aaa; font-weight: bold; font-size: 18px; }
         #loadingMsg { text-align: center; color: #0056b3; font-weight: bold; padding: 20px; }
 
-        /* MUKA SURAT 2: DETAIL */
         #pageDetail { display: none; }
-        .detail-header-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #0056b3; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .detail-header-card h2 { margin: 0 0 5px 0; color: #0056b3; }
-        .detail-header-card p { margin: 0; color: #666; font-size: 14px; }
-        .spec-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .spec-item { background: white; padding: 15px; border-radius: 8px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .spec-label { color: #666; font-size: 14px; font-weight: bold; }
-        .spec-value { color: #111; font-size: 16px; font-weight: bold; background: #f0f8ff; padding: 5px 12px; border-radius: 6px; border: 1px solid #cce5ff; }
+        .kad-container { display: flex; flex-direction: column; gap: 20px; margin-top: 10px; }
+        .title-badge { background: #333; color: white; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-bottom: 5px; font-size: 12px; font-weight: bold; }
+        
+        .process-card { background: white; width: 100%; border-collapse: collapse; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .process-card td { border: 1px solid #000; padding: 10px 12px; font-size: 15px; color: #000; }
+        .label-col { width: 40%; font-weight: bold; background-color: #fff; }
+        .value-col { width: 60%; font-family: monospace; font-size: 16px !important; color: #0056b3 !important; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <!-- Butang 1: Kembali ke Menu Manager -->
         <a href="menu_manager.html" id="btnBackMenu" class="btn-back">❮ Kembali</a>
-        
-        <!-- Butang 2: Kembali ke Senarai (Tersembunyi pada asalnya) -->
         <a id="btnBackList" class="btn-back" onclick="kembaliKeSenarai()" style="display: none;">❮ Kembali</a>
-        
         <h1 id="headerTitle">Senarai Artikel</h1>
     </div>
 
@@ -53,29 +46,55 @@
             <input type="text" id="searchInput" class="search-box" placeholder="🔍 Cari Artikel..." onkeyup="tapisCarian()">
             <div id="loadingMsg">⏳ Sedang memuat turun data dari Google Sheets...</div>
             <div id="senaraiContainer">
-                <!-- Data akan dipaparkan di sini -->
+                <!-- Data List -->
             </div>
         </div>
 
         <div id="pageDetail">
-            <div class="detail-header-card">
-                <h2 id="lblArtId">ART-0000</h2>
-                <p id="lblArtDesc">Penerangan Produk</p>
-            </div>
-            <div class="spec-grid">
-                <div class="spec-item"><span class="spec-label">Qty Per Bundle</span><span class="spec-value" id="lblBundle">0</span></div>
-                <div class="spec-item"><span class="spec-label">Qty Per Pallet</span><span class="spec-value" id="lblPallet">0</span></div>
-                <div class="spec-item"><span class="spec-label">Total Weight</span><span class="spec-value" id="lblWeight">0 kg</span></div>
-                <div class="spec-item"><span class="spec-label">Saiz Pallet</span><span class="spec-value" id="lblSize">0 x 0</span></div>
+            <div class="kad-container">
+                <div>
+                    <div class="title-badge">Spesifikasi Pembungkusan (SOP)</div>
+                    <table class="process-card">
+                        <tr>
+                            <td class="label-col">Artikel No:</td>
+                            <td class="value-col" id="lblArtId">ART-0000</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">Nama Produk:</td>
+                            <td class="value-col" id="lblArtDesc" style="color: #333 !important; font-family: 'Segoe UI', sans-serif;">Penerangan Produk</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">Qty / Bundle:</td>
+                            <td class="value-col" id="lblBundle">0</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">Qty / Pallet:</td>
+                            <td class="value-col" id="lblPallet">0</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">Total Weight:</td>
+                            <td class="value-col" id="lblWeight">0 kg</td>
+                        </tr>
+                        <!-- DUA BARIS BARU UNTUK LENGTH & WIDTH -->
+                        <tr>
+                            <td class="label-col">Pallet Length:</td>
+                            <td class="value-col" id="lblLength">0</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">Pallet Width:</td>
+                            <td class="value-col" id="lblWidth">0</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
+
     </div>
 
     <script>
-        // PASTIKAN KAU GANTI URL DI BAWAH NI BALIK DENGAN URL APPS SCRIPT KAU
+        // MASUKKAN URL APPS SCRIPT KAU DI SINI
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
 
-        // Tarik data dari Google Sheets
         window.onload = function() {
             fetch(WEB_APP_URL + "?action=getArticles")
             .then(response => response.json())
@@ -86,7 +105,8 @@
                 data.forEach(item => {
                     let kad = document.createElement("div");
                     kad.className = "list-card";
-                    kad.onclick = function() { bukaDetail(item.No_Artikel, item.Nama_Produk, item.Qty_Per_Bundle, item.Qty_Per_Pallet, item.Total_Weight_Pallet, item.Saiz_Pallet); };
+                    // HANTAR PARAMETER BARU (LENGTH & WIDTH) BILA DITEKAN
+                    kad.onclick = function() { bukaDetail(item.No_Artikel, item.Nama_Produk, item.Qty_Per_Bundle, item.Qty_Per_Pallet, item.Total_Weight_Pallet, item.Pallet_Length, item.Pallet_Width); };
                     
                     kad.innerHTML = `
                         <div>
@@ -103,7 +123,6 @@
             });
         }
 
-        // Fungsi carian
         function tapisCarian() {
             let input = document.getElementById("searchInput").value.toUpperCase();
             let cards = document.getElementsByClassName("list-card");
@@ -114,13 +133,12 @@
             }
         }
 
-        // Buka Detail Artikel
-        function bukaDetail(id, desc, bundle, pallet, weight, size) {
+        // TERIMA PARAMETER BARU (LENGTH & WIDTH)
+        function bukaDetail(id, desc, bundle, pallet, weight, length, width) {
             document.getElementById("pageList").style.display = "none";
             document.getElementById("pageDetail").style.display = "block";
             document.getElementById("headerTitle").innerText = "Detail Artikel";
             
-            // Pertukaran Butang: Tutup butang ke Menu, Buka butang ke Senarai
             document.getElementById("btnBackMenu").style.display = "none";
             document.getElementById("btnBackList").style.display = "block";
 
@@ -129,16 +147,17 @@
             document.getElementById("lblBundle").innerText = bundle;
             document.getElementById("lblPallet").innerText = pallet;
             document.getElementById("lblWeight").innerText = weight;
-            document.getElementById("lblSize").innerText = size;
+            
+            // MASUKKAN DATA KE DALAM JADUAL BARU
+            document.getElementById("lblLength").innerText = length;
+            document.getElementById("lblWidth").innerText = width;
         }
 
-        // Patah Balik Ke Senarai
         function kembaliKeSenarai() {
             document.getElementById("pageDetail").style.display = "none";
             document.getElementById("pageList").style.display = "block";
             document.getElementById("headerTitle").innerText = "Senarai Artikel";
             
-            // Pertukaran Butang: Buka balik butang ke Menu, Tutup butang ke Senarai
             document.getElementById("btnBackMenu").style.display = "block";
             document.getElementById("btnBackList").style.display = "none";
         }
