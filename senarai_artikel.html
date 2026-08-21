@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senarai Artikel & Detail</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; color: #333; }
+        .header { background: #0056b3; color: white; padding: 15px 20px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 18px; margin-left: 15px; }
+        .btn-back { color: white; text-decoration: none; font-size: 20px; font-weight: bold; cursor: pointer; display: none; }
+        .container { padding: 20px; }
+        
+        /* MUKA SURAT 1: SENARAI */
+        #pageList { display: block; }
+        .search-box { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; box-sizing: border-box; margin-bottom: 20px; }
+        .list-card { background: white; border-radius: 8px; margin-bottom: 10px; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .art-title { font-size: 16px; font-weight: bold; color: #333; margin: 0 0 5px 0; }
+        .art-desc { font-size: 13px; color: #666; margin: 0; }
+        .arrow-icon { color: #aaa; font-weight: bold; font-size: 18px; }
+        #loadingMsg { text-align: center; color: #0056b3; font-weight: bold; padding: 20px; }
+
+        /* MUKA SURAT 2: DETAIL */
+        #pageDetail { display: none; }
+        .detail-header-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #0056b3; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .detail-header-card h2 { margin: 0 0 5px 0; color: #0056b3; }
+        .detail-header-card p { margin: 0; color: #666; font-size: 14px; }
+        .spec-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .spec-item { background: white; padding: 15px; border-radius: 8px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .spec-label { color: #666; font-size: 14px; font-weight: bold; }
+        .spec-value { color: #111; font-size: 16px; font-weight: bold; background: #f0f8ff; padding: 5px 12px; border-radius: 6px; border: 1px solid #cce5ff; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a id="btnBack" class="btn-back" onclick="kembaliKeSenarai()">❮</a>
+        <h1 id="headerTitle">Senarai Artikel</h1>
+    </div>
+
+    <div class="container">
+        
+        <div id="pageList">
+            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Cari Artikel..." onkeyup="tapisCarian()">
+            <div id="loadingMsg">⏳ Sedang memuat turun data dari Google Sheets...</div>
+            <div id="senaraiContainer">
+                <!-- Data dari Google Sheets akan masuk di sini -->
+            </div>
+        </div>
+
+        <div id="pageDetail">
+            <div class="detail-header-card">
+                <h2 id="lblArtId">ART-0000</h2>
+                <p id="lblArtDesc">Penerangan Produk</p>
+            </div>
+            <div class="spec-grid">
+                <div class="spec-item"><span class="spec-label">Qty Per Bundle</span><span class="spec-value" id="lblBundle">0</span></div>
+                <div class="spec-item"><span class="spec-label">Qty Per Pallet</span><span class="spec-value" id="lblPallet">0</span></div>
+                <div class="spec-item"><span class="spec-label">Total Weight</span><span class="spec-value" id="lblWeight">0 kg</span></div>
+                <div class="spec-item"><span class="spec-label">Saiz Pallet</span><span class="spec-value" id="lblSize">0 x 0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GANTIKAN URL DI BAWAH DENGAN WEB APP URL KAU
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
+
+        // Tarik data sebaik sahaja fail dibuka
+        window.onload = function() {
+            fetch(WEB_APP_URL + "?action=getArticles")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("loadingMsg").style.display = "none";
+                let container = document.getElementById("senaraiContainer");
+                
+                data.forEach(item => {
+                    // Cipta kad untuk setiap baris di Google Sheets
+                    let kad = document.createElement("div");
+                    kad.className = "list-card";
+                    // Fungsi hantar data ke page detail bila ditekan
+                    kad.onclick = function() { bukaDetail(item.No_Artikel, item.Nama_Produk, item.Qty_Per_Bundle, item.Qty_Per_Pallet, item.Total_Weight_Pallet, item.Saiz_Pallet); };
+                    
+                    kad.innerHTML = `
+                        <div>
+                            <h3 class="art-title">${item.No_Artikel}</h3>
+                            <p class="art-desc">${item.Nama_Produk}</p>
+                        </div>
+                        <div class="arrow-icon">❯</div>
+                    `;
+                    container.appendChild(kad);
+                });
+            })
+            .catch(error => {
+                document.getElementById("loadingMsg").innerText = "❌ Gagal memuat turun data. Pastikan internet & URL betul.";
+            });
+        }
+
+        // Fungsi carian (Search Filter)
+        function tapisCarian() {
+            let input = document.getElementById("searchInput").value.toUpperCase();
+            let cards = document.getElementsByClassName("list-card");
+            for (let i = 0; i < cards.length; i++) {
+                let text = cards[i].innerText.toUpperCase();
+                if (text.indexOf(input) > -1) { cards[i].style.display = "flex"; } 
+                else { cards[i].style.display = "none"; }
+            }
+        }
+
+        // Fungsi SPA (Pertukaran Skrin)
+        function bukaDetail(id, desc, bundle, pallet, weight, size) {
+            document.getElementById("pageList").style.display = "none";
+            document.getElementById("pageDetail").style.display = "block";
+            document.getElementById("headerTitle").innerText = "Detail Artikel";
+            document.getElementById("btnBack").style.display = "block";
+
+            document.getElementById("lblArtId").innerText = id;
+            document.getElementById("lblArtDesc").innerText = desc;
+            document.getElementById("lblBundle").innerText = bundle;
+            document.getElementById("lblPallet").innerText = pallet;
+            document.getElementById("lblWeight").innerText = weight;
+            document.getElementById("lblSize").innerText = size;
+        }
+
+        function kembaliKeSenarai() {
+            document.getElementById("pageDetail").style.display = "none";
+            document.getElementById("pageList").style.display = "block";
+            document.getElementById("headerTitle").innerText = "Senarai Artikel";
+            document.getElementById("btnBack").style.display = "none";
+        }
+    </script>
+</body>
+</html>

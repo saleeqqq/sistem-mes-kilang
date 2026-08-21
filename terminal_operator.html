@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Tracker MES Operator</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #1e1e2f; color: white; margin: 0; padding: 20px; }
+        .mes-container { background: #2a2a40; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-width: 450px; margin: auto; }
+        h2 { text-align: center; color: #4db8ff; margin-top: 0; border-bottom: 1px solid #4db8ff; padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #a9b0c0; font-size: 14px;}
+        input, select { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3f3f5a; color: white; font-size: 15px; box-sizing: border-box; }
+        input:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .timer-display { background: #151521; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0; border: 2px solid #3f3f5a; }
+        .time-main { font-size: 40px; font-weight: bold; font-family: monospace; color: #00ff88; letter-spacing: 2px; }
+        .time-pause { font-size: 14px; color: #ff5555; margin-top: 5px; font-family: monospace; }
+        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 10px; background: #555; color: white; }
+
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        button { padding: 15px; font-size: 14px; font-weight: bold; color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-start { background: #00ff88; color: #000; grid-column: span 2; }
+        .btn-pause { background: #ffaa00; color: #000; }
+        .btn-resume { background: #00aaff; color: #fff; }
+        .btn-stop { background: #ff3366; color: #fff; }
+
+        .modal { display: none; background: #3f3f5a; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 5px solid #ff3366; }
+        .qty-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .qty-grid input { background: white; color: black; font-weight: bold; text-align: center;}
+        .reject-input { border: 2px solid #ff5555 !important; }
+        .btn-submit { background: #4db8ff; width: 100%; margin-top: 15px; color: black; }
+    </style>
+</head>
+<body>
+
+    <div class="mes-container">
+        <h2>Terminal Operasi</h2>
+
+        <!-- Input Data Awal -->
+        <div class="form-group">
+            <label>ID Pekerja (Operator)</label>
+            <input type="text" id="idInput" placeholder="Cth: OP102">
+        </div>
+        <div class="form-group">
+            <label>No. Artikel / Job Order</label>
+            <input type="text" id="artikelInput" placeholder="Cth: ART-1234">
+        </div>
+        <div class="form-group">
+            <label>Proses Semasa</label>
+            <select id="prosesInput">
+                <option value="">-- Pilih Proses --</option>
+                <option value="Setting">Setting / Tukar Mould</option>
+                <option value="Cutting">Cutting</option>
+                <option value="Bending">Bending</option>
+                <option value="Welding">Welding</option>
+            </select>
+        </div>
+
+        <div class="timer-display">
+            <div class="status-badge" id="statusBadge">SEDIA</div>
+            <div class="time-main" id="mainTime">00:00:00</div>
+            <div class="time-pause" id="pauseTime">Rehat/Downtime: 00:00:00</div>
+            <div id="downtimeReasonDisplay" style="color: #ffaa00; font-size: 12px; margin-top: 5px;"></div>
+        </div>
+
+        <div class="btn-grid">
+            <button class="btn-start" id="btnStart" onclick="mulaProses()">▶ START</button>
+            <button class="btn-pause" id="btnPause" onclick="bukaModalDowntime()" disabled>⏸ BREAKDOWN</button>
+            <button class="btn-stop" id="btnStop" onclick="bukaModalStop()" disabled>⏹ STOP</button>
+        </div>
+
+        <!-- POP-UP DOWNTIME -->
+        <div id="downtimeModal" class="modal" style="border-left: 5px solid #ffaa00;">
+            <select id="sebabDowntime" style="margin-bottom: 10px; background: white; color: black;">
+                <option value="Tandas/Rehat">Ke Tandas / Rehat</option>
+                <option value="Mesin Rosak">Mesin Breakdown / Repair</option>
+                <option value="Tunggu Material">Menunggu Material</option>
+            </select>
+            <button class="btn-start" onclick="sahkanDowntime()" style="width: 100%; padding: 10px;">SAHKAN DOWNTIME</button>
+        </div>
+
+        <!-- POP-UP HANTAR HASIL -->
+        <div id="stopModal" class="modal">
+            <div class="qty-grid">
+                <div class="form-group"><label>TOTAL OUTPUT</label><input type="number" id="outputInput" placeholder="0"></div>
+                <div class="form-group"><label style="color:#ff5555;">REJECT</label><input type="number" id="rejectInput" class="reject-input" value="0"></div>
+            </div>
+            <button class="btn-submit" id="btnSubmit" onclick="hantarData()">🚀 HANTAR KE SISTEM</button>
+        </div>
+    </div>
+
+    <script>
+        // GANTIKAN URL DI BAWAH DENGAN WEB APP URL KAU
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
+
+        // Logic Timestamp Mutlak (Boleh off skrin)
+        let waktuMulaKerja = 0;
+        let waktuMulaRehat = 0;
+        
+        let totalKerjaSaat = 0;
+        let totalRehatSaat = 0;
+        
+        let UI_Interval = null; // Cuma untuk update skrin, tak pengaruhi data sebenar
+        let sedangRehat = false;
+        let sebabDowntimeTerkini = "Tiada";
+
+        const statusBadge = document.getElementById("statusBadge");
+
+        function formatMasa(totalSaat) {
+            let j = Math.floor(totalSaat / 3600);
+            let m = Math.floor((totalSaat - (j * 3600)) / 60);
+            let s = Math.floor(totalSaat - (j * 3600) - (m * 60));
+            return `${String(j).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // --- FUNGSI KERJA ---
+        function mulaProses() {
+            if(!document.getElementById("idInput").value || !document.getElementById("artikelInput").value || !document.getElementById("prosesInput").value) {
+                alert("Isi ID Pekerja, Artikel & Proses dahulu!"); return;
+            }
+            document.getElementById("idInput").disabled = true; document.getElementById("artikelInput").disabled = true; document.getElementById("prosesInput").disabled = true;
+            
+            document.getElementById("btnStart").style.display = "none";
+            document.getElementById("btnPause").disabled = false;
+            document.getElementById("btnStop").disabled = false;
+
+            waktuMulaKerja = Date.now(); // SET TIMESTAMP MULA
+            
+            jalankanVisualJam();
+        }
+
+        function jalankanVisualJam() {
+            sedangRehat = false;
+            statusBadge.innerText = "RUNNING"; statusBadge.style.background = "#00ff88";
+            
+            let btnPause = document.getElementById("btnPause");
+            btnPause.innerText = "⏸ BREAKDOWN"; btnPause.className = "btn-pause"; btnPause.onclick = bukaModalDowntime;
+            document.getElementById("btnStop").disabled = false;
+
+            // Visual sahaja. Kalau skrin off, ini akan pause. Tapi data tak terjejas.
+            clearInterval(UI_Interval);
+            UI_Interval = setInterval(() => { 
+                let saatBerlalu = (Date.now() - waktuMulaKerja) / 1000;
+                let bersihKerja = saatBerlalu - totalRehatSaat;
+                document.getElementById("mainTime").innerText = formatMasa(bersihKerja); 
+            }, 1000);
+        }
+
+        // --- FUNGSI DOWNTIME ---
+        function bukaModalDowntime() {
+            clearInterval(UI_Interval); // Henti visual jam kerja
+            document.getElementById("downtimeModal").style.display = "block";
+            document.getElementById("btnPause").disabled = true;
+            document.getElementById("btnStop").disabled = true;
+        }
+
+        function sahkanDowntime() {
+            document.getElementById("downtimeModal").style.display = "none";
+            sebabDowntimeTerkini = document.getElementById("sebabDowntime").value;
+            
+            statusBadge.innerText = "DOWNTIME"; statusBadge.style.background = "#ffaa00";
+            document.getElementById("downtimeReasonDisplay").innerText = "Sebab: " + sebabDowntimeTerkini;
+
+            waktuMulaRehat = Date.now(); // SET TIMESTAMP MULA REHAT
+            sedangRehat = true;
+
+            let btnPause = document.getElementById("btnPause");
+            btnPause.disabled = false; btnPause.innerText = "▶ RESUME (SAMBUNG)"; btnPause.className = "btn-resume";
+            
+            btnPause.onclick = function() {
+                // Bila tekan resume, kira berapa lama dia baru lepas rehat (Timestamp Tamat Rehat)
+                let tempohRehatBaru = (Date.now() - waktuMulaRehat) / 1000;
+                totalRehatSaat += tempohRehatBaru;
+                document.getElementById("downtimeReasonDisplay").innerText = "";
+                document.getElementById("pauseTime").innerText = "Rehat/Downtime: " + formatMasa(totalRehatSaat);
+                
+                jalankanVisualJam();
+            };
+        }
+
+        // --- FUNGSI STOP & HANTAR DATA KE GOOGLE SHEETS ---
+        function bukaModalStop() {
+            clearInterval(UI_Interval);
+            if(sedangRehat) {
+                // Kalau dia tengah rehat pastu terus tekan stop (contoh shift habis masa mesin masih down)
+                let tempohRehatBaru = (Date.now() - waktuMulaRehat) / 1000;
+                totalRehatSaat += tempohRehatBaru;
+            }
+
+            // Kiraan Akhir (Timestamp Tamat Kerja)
+            let waktuTamatKerja = Date.now();
+            let totalMasaDiKilang = (waktuTamatKerja - waktuMulaKerja) / 1000;
+            totalKerjaSaat = totalMasaDiKilang - totalRehatSaat;
+
+            document.getElementById("btnPause").disabled = true; document.getElementById("btnStop").disabled = true;
+            statusBadge.innerText = "SELESAI (KIRAAN HASIL)"; statusBadge.style.background = "#ff3366";
+            document.getElementById("stopModal").style.display = "block";
+        }
+
+        function hantarData() {
+            let output = parseInt(document.getElementById("outputInput").value);
+            let reject = parseInt(document.getElementById("rejectInput").value) || 0;
+
+            if(!output && output !== 0) { alert("Sila masukkan Total Output!"); return; } // Benarkan 0 untuk kerja setting
+            
+            // Tukar butang jadi Sedang Dihantar (elak double click)
+            let btn = document.getElementById("btnSubmit");
+            btn.innerText = "⏳ Sedang Menghantar...";
+            btn.disabled = true;
+            btn.style.background = "#888";
+
+            // Bungkus Data untuk dihantar ke Google Sheets
+            let dataPayload = {
+                "ID_Pekerja": document.getElementById("idInput").value,
+                "No_Artikel": document.getElementById("artikelInput").value,
+                "Proses": document.getElementById("prosesInput").value,
+                "Total_Kerja_Saat": totalKerjaSaat.toFixed(0),
+                "Total_Downtime_Saat": totalRehatSaat.toFixed(0),
+                "Sebab_Downtime": totalRehatSaat > 0 ? sebabDowntimeTerkini : "Tiada",
+                "Total_Output": output,
+                "Total_Reject": reject
+            };
+
+            // HANTAR DATA (POST METHOD)
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify(dataPayload)
+            })
+            .then(response => response.json())
+            .then(res => {
+                alert("LAPORAN BERJAYA DISIMPAN KE GOOGLE SHEETS!");
+                window.location.reload(); // Reset terminal untuk job seterusnya
+            })
+            .catch(error => {
+                alert("Ralat! Data gagal dihantar. Semak internet atau URL.");
+                btn.innerText = "🚀 CUBA HANTAR LAGI";
+                btn.disabled = false;
+                btn.style.background = "#4db8ff";
+            });
+        }
+    </script>
+</body>
+</html>

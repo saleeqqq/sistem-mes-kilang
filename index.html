@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Operasi Kilang</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #e9ecef; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-card { background: white; padding: 40px 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+        
+        .logo-placeholder { font-size: 50px; margin-bottom: 10px; }
+        .login-card h2 { margin: 0 0 5px 0; color: #333; font-size: 22px; }
+        .login-card p { color: #777; font-size: 14px; margin-bottom: 25px; }
+
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; transition: 0.3s; }
+        input:focus { border-color: #0056b3; outline: none; box-shadow: 0 0 5px rgba(0,86,179,0.3); }
+
+        .btn-login { width: 100%; padding: 12px; background: #0056b3; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-login:hover { background: #004494; }
+
+        .error-msg { color: #ff3366; font-size: 13px; margin-top: 10px; display: none; font-weight: bold; background: #ffe6eb; padding: 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="logo-placeholder">🏭</div>
+        <h2>Portal Sistem MES</h2>
+        <p>Sila log masuk untuk mula bertugas</p>
+
+        <div class="form-group">
+            <label>ID Pengguna (Username)</label>
+            <input type="text" id="username" placeholder="Cth: ENG01 atau OP101" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+            <label>Kata Laluan (Password)</label>
+            <input type="password" id="password" placeholder="Masukkan kata laluan">
+        </div>
+
+        <button class="btn-login" onclick="semakLogin()">LOG MASUK</button>
+        <div class="error-msg" id="errorMsg">❌ ID Pengguna atau Kata Laluan salah!</div>
+    </div>
+
+    <script>
+        // Senarai Pekerja Berdaftar (Hardcoded untuk Versi 1.0)
+        // Format: "USERNAME": { pass: "PASSWORD", role: "PERANAN" }
+        const senaraiPekerja = {
+            // Akaun Manager / Engineer
+            "ENG01": { pass: "admin123", role: "manager" },
+            "MGR99": { pass: "bosbesar", role: "manager" },
+
+            // Akaun Operator
+            "OP101": { pass: "1111", role: "operator" },
+            "OP102": { pass: "2222", role: "operator" },
+            "OP103": { pass: "3333", role: "operator" }
+        };
+
+        function semakLogin() {
+            // Ambil input dan tukar ke huruf besar supaya tak sensitif huruf kecil/besar (case-insensitive)
+            let user = document.getElementById("username").value.trim().toUpperCase(); 
+            let pass = document.getElementById("password").value;
+            let errorMsg = document.getElementById("errorMsg");
+
+            // Kosongkan mesej error lama
+            errorMsg.style.display = "none";
+
+            // Semak jika input kosong
+            if(user === "" || pass === "") {
+                errorMsg.innerText = "⚠️ Sila isi ID Pengguna dan Kata Laluan.";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            // Semak dalam senarai pekerja
+            if (senaraiPekerja[user] && senaraiPekerja[user].pass === pass) {
+                
+                let peranan = senaraiPekerja[user].role;
+
+                if (peranan === "manager") {
+                    // Berjaya Login sebagai Manager!
+                    window.location.href = "senarai_artikel.html"; 
+                    
+                } else if (peranan === "operator") {
+                    // Berjaya Login sebagai Operator!
+                    window.location.href = "terminal_operator.html";
+                }
+                
+            } else {
+                // Gagal Login
+                errorMsg.innerText = "❌ ID atau Kata Laluan salah!";
+                errorMsg.style.display = "block";
+            }
+        }
+
+        // Fungsi tambahan: Boleh tekan "Enter" dekat keyboard untuk terus login
+        document.getElementById("password").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                semakLogin();
+            }
+        });
+    </script>
+</body>
+</html>
