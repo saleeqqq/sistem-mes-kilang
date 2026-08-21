@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kehadiran & Jam OT</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        .header h1 { margin: 0; color: #ffaa00; font-size: 20px; }
+        .btn-back { color: #666; text-decoration: none; font-weight: bold; }
+
+        /* Kad Ringkasan */
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .sum-card { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #ffaa00; }
+        .sum-title { font-size: 13px; color: #666; font-weight: bold; text-transform: uppercase; }
+        .sum-value { font-size: 24px; font-weight: bold; color: #333; margin-top: 5px; }
+
+        /* Jadual Data */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { background: #333; color: white; }
+        
+        .status-hadir { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .status-mc { background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>⏱️ Rekod Kehadiran & OT</h1>
+        <a href="menu_manager.html" class="btn-back">🔙 Kembali</a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="sum-card">
+            <div class="sum-title">Total Kehadiran Hari Ini</div>
+            <div class="sum-value">12 / 15 Orang</div>
+        </div>
+        <div class="sum-card" style="border-left-color: #ff3366;">
+            <div class="sum-title">Anggaran Total OT (Jam)</div>
+            <div class="sum-value">24 Jam</div>
+        </div>
+    </div>
+
+    <table style="min-width: 600px; display: block; overflow-x: auto; white-space: nowrap;">
+        <thead>
+            <tr>
+                <th>Operator</th>
+                <th>Status</th>
+                <th>Time In</th>
+                <th>Time Out</th>
+                <th>Jam Bekerja</th>
+                <th>Jam OT</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Data Dummy (Prototaip) -->
+            <tr>
+                <td><strong>OP101 (Ali)</strong></td>
+                <td><span class="status-hadir">Hadir</span></td>
+                <td>08:00 AM</td>
+                <td>07:00 PM</td>
+                <td>8 Jam</td>
+                <td><strong style="color:#ff3366;">2 Jam</strong></td>
+            </tr>
+            <tr>
+                <td><strong>OP102 (Muthu)</strong></td>
+                <td><span class="status-hadir">Hadir</span></td>
+                <td>08:15 AM</td>
+                <td>09:00 PM</td>
+                <td>8 Jam</td>
+                <td><strong style="color:#ff3366;">4 Jam</strong></td>
+            </tr>
+            <tr>
+                <td><strong>OP103 (Chong)</strong></td>
+                <td><span class="status-mc">MC / Cuti</span></td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

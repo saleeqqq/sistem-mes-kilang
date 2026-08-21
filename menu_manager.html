@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Pengurusan - Sistem MES</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .header { text-align: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 2px solid #ddd; }
+        .header h1 { margin: 0; color: #0056b3; }
+        .header p { color: #666; margin-top: 5px; font-weight: bold; }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        
+        .menu-card { 
+            background: white; padding: 20px 10px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            text-align: center; text-decoration: none; color: #333; transition: 0.2s; 
+            border: 1px solid #eee; display: flex; flex-direction: column; align-items: center;
+        }
+        .menu-card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); border-color: #00aaff; }
+        
+        .menu-card .icon { font-size: 40px; margin-bottom: 10px; }
+        .menu-card .title { font-size: 14px; font-weight: bold; }
+        
+        .btn-logout { display: block; width: 100%; text-align: center; margin-top: 30px; padding: 12px; background: #ff3366; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>👨‍💼 Ruang Pengurusan</h1>
+        <p>Pilih modul untuk melihat data</p>
+    </div>
+
+    <div class="menu-grid">
+        <!-- MENU 1: MASTER ARTIKEL (Yang kau dah buat) -->
+        <a href="senarai_artikel.html" class="menu-card" style="border-bottom: 4px solid #00ff88;">
+            <div class="icon">📁</div>
+            <div class="title">Buku Spesifikasi (Master Artikel)</div>
+        </a>
+
+        <!-- MENU 2: OUTPUT HARIAN (Baru) -->
+        <a href="output_harian.html" class="menu-card" style="border-bottom: 4px solid #00aaff;">
+            <div class="icon">📊</div>
+            <div class="title">Output Harian Operator</div>
+        </a>
+
+        <!-- MENU 3: KEHADIRAN & OT (Baru) -->
+        <a href="kehadiran_ot.html" class="menu-card" style="border-bottom: 4px solid #ffaa00;">
+            <div class="icon">⏱️</div>
+            <div class="title">Kehadiran & Jam OT</div>
+        </a>
+    </div>
+
+    <a href="index.html" class="btn-logout">LOG KELUAR</a>
+
+</body>
+</html>

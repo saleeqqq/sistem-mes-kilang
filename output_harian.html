@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Output Harian Operator</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        .header h1 { margin: 0; color: #0056b3; font-size: 20px; }
+        .btn-back { color: #666; text-decoration: none; font-weight: bold; }
+
+        .filter-box { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .filter-box input { padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; width: 200px; }
+        .filter-box button { padding: 10px 15px; background: #0056b3; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+        /* Jadual Data */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { background: #0056b3; color: white; }
+        tr:hover { background: #f9f9f9; }
+        
+        .badge-good { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .badge-bad { background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📊 Output Harian Operator</h1>
+        <a href="menu_manager.html" class="btn-back">🔙 Kembali</a>
+    </div>
+
+    <div class="filter-box">
+        <label style="font-weight: bold; margin-right: 10px;">Pilih Tarikh:</label>
+        <input type="date" id="tarikhFilter">
+        <button onclick="alert('Fungsi filter dari Google Sheets akan diaktifkan')">🔍 Cari</button>
+    </div>
+
+    <!-- Jadual ni nanti kita akan sambung dengan data dari tab Log_Produksi -->
+    <table style="min-width: 600px; display: block; overflow-x: auto; white-space: nowrap;">
+        <thead>
+            <tr>
+                <th>Operator</th>
+                <th>No. Artikel</th>
+                <th>Proses</th>
+                <th>Output (Unit)</th>
+                <th>Reject (Unit)</th>
+                <th>Downtime</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Data Dummy (Prototaip) -->
+            <tr>
+                <td><strong>OP101</strong></td>
+                <td>ART-1001</td>
+                <td>Cutting</td>
+                <td>500</td>
+                <td><span style="color: red; font-weight: bold;">5</span></td>
+                <td>10 min</td>
+                <td><span class="badge-good">Target Hit</span></td>
+            </tr>
+            <tr>
+                <td><strong>OP102</strong></td>
+                <td>ART-2055</td>
+                <td>Bending</td>
+                <td>120</td>
+                <td><span style="color: red; font-weight: bold;">15</span></td>
+                <td>45 min (Mesin Rosak)</td>
+                <td><span class="badge-bad">Low Output</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>
