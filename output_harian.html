@@ -8,27 +8,23 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; padding: 15px; color: #333; }
         
-        /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
         .header h1 { margin: 0; color: #0056b3; font-size: 18px; }
         .btn-back { color: #666; text-decoration: none; font-weight: bold; font-size: 20px; }
 
-        /* Filter Box */
         .filter-box { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; gap: 10px; }
         .filter-box input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
         .filter-box button { padding: 10px 15px; background: #0056b3; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        /* Container Untuk Kad Proses */
         .kad-container { display: flex; flex-direction: column; gap: 20px; }
-
-        /* Design Kotak Proses Ikut Gambar */
+        
         .process-card { background: white; width: 100%; border-collapse: collapse; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .process-card td { border: 1px solid #000; padding: 8px 12px; font-size: 15px; color: #000; }
-        
         .label-col { width: 35%; font-weight: bold; background-color: #fff; }
         .value-col { width: 65%; font-family: monospace; font-size: 16px !important; color: #0056b3 !important; }
-        
         .title-badge { background: #333; color: white; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-bottom: 5px; font-size: 12px; font-weight: bold; }
+        
+        #loadingMsg { text-align: center; color: #0056b3; font-weight: bold; padding: 20px; }
     </style>
 </head>
 <body>
@@ -40,83 +36,76 @@
 
     <div class="filter-box">
         <input type="date" id="tarikhFilter">
-        <button onclick="alert('Fungsi carian data dari Sheets akan diaktifkan')">🔍 Cari</button>
+        <button onclick="alert('Fungsi filter akan datang!')">🔍 Cari</button>
     </div>
 
-    <!-- RUANGAN KOTAK DATA -->
+    <div id="loadingMsg">⏳ Sedang memuat turun data produksi...</div>
+    
+    <!-- RUANGAN KOTAK DATA (Akan diisi automatik oleh JavaScript) -->
     <div class="kad-container" id="dataContainer">
-
-        <!-- KOTAK DATA 1 -->
-        <div>
-            <div class="title-badge">Rekod #1</div>
-            <table class="process-card">
-                <tr>
-                    <td class="label-col">Process</td>
-                    <td class="value-col">Cutting</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Id Opr</td>
-                    <td class="value-col">OP101</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Artikel No:</td>
-                    <td class="value-col">ART-1001</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Job Order:</td>
-                    <td class="value-col">JO-9921</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Kuantiti</td>
-                    <td class="value-col">500 Unit</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Time Start:</td>
-                    <td class="value-col">08:00 AM</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Time End:</td>
-                    <td class="value-col">10:30 AM</td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- KOTAK DATA 2 -->
-        <div>
-            <div class="title-badge">Rekod #2</div>
-            <table class="process-card">
-                <tr>
-                    <td class="label-col">Process</td>
-                    <td class="value-col">Bending</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Id Opr</td>
-                    <td class="value-col">OP102</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Artikel No:</td>
-                    <td class="value-col">ART-2055</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Job Order:</td>
-                    <td class="value-col">JO-9922</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Kuantiti</td>
-                    <td class="value-col">120 Unit</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Time Start:</td>
-                    <td class="value-col">11:00 AM</td>
-                </tr>
-                <tr>
-                    <td class="label-col">Time End:</td>
-                    <td class="value-col">01:15 PM</td>
-                </tr>
-            </table>
-        </div>
-
     </div>
 
+    <script>
+        // MASUKKAN URL APPS SCRIPT KAU KAT SINI
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
+
+        window.onload = function() {
+            // Panggil action=getOutputHarian
+            fetch(WEB_APP_URL + "?action=getOutputHarian")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("loadingMsg").style.display = "none";
+                let container = document.getElementById("dataContainer");
+                container.innerHTML = ""; // Kosongkan ruangan sebelum masukkan data
+                
+                let rekodNo = 1;
+                
+                data.forEach(item => {
+                    let htmlKad = `
+                        <div>
+                            <div class="title-badge">Rekod #${rekodNo}</div>
+                            <table class="process-card">
+                                <tr>
+                                    <td class="label-col">Process</td>
+                                    <td class="value-col">${item.Proses}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label-col">Id Opr</td>
+                                    <td class="value-col">${item.Id_Opr}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label-col">Artikel No:</td>
+                                    <td class="value-col">${item.No_Artikel}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label-col">Job Order:</td>
+                                    <td class="value-col">${item.Job_Order}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label-col">Kuantiti</td>
+                                    <td class="value-col">${item.Kuantiti} Unit</td>
+                                </tr>
+                                <tr>
+                                    <td class="label-col">Time Start:</td>
+                                    <td class="value-col">${item.Time_Start}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label-col">Time End:</td>
+                                    <td class="value-col">${item.Time_End}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    `;
+                    // Tambah kad ke dalam container
+                    container.innerHTML += htmlKad;
+                    rekodNo++;
+                });
+            })
+            .catch(error => {
+                document.getElementById("loadingMsg").innerText = "❌ Gagal memuat turun data.";
+                console.error(error);
+            });
+        }
+    </script>
 </body>
 </html>
