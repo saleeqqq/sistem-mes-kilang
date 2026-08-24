@@ -4,15 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- KOD ANTI-CACHE (PAKSA BACA DARI INTERNET) -->
+    <!-- KOD ANTI-CACHE -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Login - Sistem Operasi Kilang</title>
-    <!-- ... kod style kau yang lain ... -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Tracker MES Operator</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #1e1e2f; color: white; margin: 0; padding: 20px; }
@@ -49,14 +45,18 @@
     <div class="mes-container">
         <h2>Terminal Operasi</h2>
 
-        <!-- Input Data Awal -->
+        <!-- Input Data Awal (DITAMBAH JOB ORDER) -->
         <div class="form-group">
             <label>ID Pekerja (Operator)</label>
-            <input type="text" id="idInput" placeholder="Cth: OP102">
+            <input type="text" id="idInput" placeholder="Cth: OP101">
         </div>
         <div class="form-group">
-            <label>No. Artikel / Job Order</label>
+            <label>No. Artikel</label>
             <input type="text" id="artikelInput" placeholder="Cth: ART-1234">
+        </div>
+        <div class="form-group">
+            <label>Job Order (JO)</label>
+            <input type="text" id="joInput" placeholder="Cth: JO-9992">
         </div>
         <div class="form-group">
             <label>Proses Semasa</label>
@@ -103,17 +103,16 @@
     </div>
 
     <script>
-        // GANTIKAN URL DI BAWAH DENGAN WEB APP URL KAU
+        // MASUKKAN URL WEB APP KAU KAT SINI !!
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
 
-        // Logic Timestamp Mutlak (Boleh off skrin)
         let waktuMulaKerja = 0;
+        let waktuTamatKerja = 0; // DITAMBAH UNTUK KIRA MASA TAMAT
         let waktuMulaRehat = 0;
         
-        let totalKerjaSaat = 0;
         let totalRehatSaat = 0;
         
-        let UI_Interval = null; // Cuma untuk update skrin, tak pengaruhi data sebenar
+        let UI_Interval = null; 
         let sedangRehat = false;
         let sebabDowntimeTerkini = "Tiada";
 
@@ -126,19 +125,27 @@
             return `${String(j).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        // --- FUNGSI KERJA ---
+        // FUNGSI UNTUK TUKAR TIMESTAMP KE "08:00 AM"
+        function formatWaktu(ms) {
+            if(!ms) return "-";
+            let date = new Date(ms);
+            return date.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+
         function mulaProses() {
             if(!document.getElementById("idInput").value || !document.getElementById("artikelInput").value || !document.getElementById("prosesInput").value) {
                 alert("Isi ID Pekerja, Artikel & Proses dahulu!"); return;
             }
-            document.getElementById("idInput").disabled = true; document.getElementById("artikelInput").disabled = true; document.getElementById("prosesInput").disabled = true;
+            document.getElementById("idInput").disabled = true; 
+            document.getElementById("artikelInput").disabled = true; 
+            document.getElementById("joInput").disabled = true; 
+            document.getElementById("prosesInput").disabled = true;
             
             document.getElementById("btnStart").style.display = "none";
             document.getElementById("btnPause").disabled = false;
             document.getElementById("btnStop").disabled = false;
 
-            waktuMulaKerja = Date.now(); // SET TIMESTAMP MULA
-            
+            waktuMulaKerja = Date.now(); 
             jalankanVisualJam();
         }
 
@@ -150,7 +157,6 @@
             btnPause.innerText = "⏸ BREAKDOWN"; btnPause.className = "btn-pause"; btnPause.onclick = bukaModalDowntime;
             document.getElementById("btnStop").disabled = false;
 
-            // Visual sahaja. Kalau skrin off, ini akan pause. Tapi data tak terjejas.
             clearInterval(UI_Interval);
             UI_Interval = setInterval(() => { 
                 let saatBerlalu = (Date.now() - waktuMulaKerja) / 1000;
@@ -159,9 +165,8 @@
             }, 1000);
         }
 
-        // --- FUNGSI DOWNTIME ---
         function bukaModalDowntime() {
-            clearInterval(UI_Interval); // Henti visual jam kerja
+            clearInterval(UI_Interval); 
             document.getElementById("downtimeModal").style.display = "block";
             document.getElementById("btnPause").disabled = true;
             document.getElementById("btnStop").disabled = true;
@@ -174,14 +179,13 @@
             statusBadge.innerText = "DOWNTIME"; statusBadge.style.background = "#ffaa00";
             document.getElementById("downtimeReasonDisplay").innerText = "Sebab: " + sebabDowntimeTerkini;
 
-            waktuMulaRehat = Date.now(); // SET TIMESTAMP MULA REHAT
+            waktuMulaRehat = Date.now(); 
             sedangRehat = true;
 
             let btnPause = document.getElementById("btnPause");
             btnPause.disabled = false; btnPause.innerText = "▶ RESUME (SAMBUNG)"; btnPause.className = "btn-resume";
             
             btnPause.onclick = function() {
-                // Bila tekan resume, kira berapa lama dia baru lepas rehat (Timestamp Tamat Rehat)
                 let tempohRehatBaru = (Date.now() - waktuMulaRehat) / 1000;
                 totalRehatSaat += tempohRehatBaru;
                 document.getElementById("downtimeReasonDisplay").innerText = "";
@@ -191,19 +195,14 @@
             };
         }
 
-        // --- FUNGSI STOP & HANTAR DATA KE GOOGLE SHEETS ---
         function bukaModalStop() {
             clearInterval(UI_Interval);
+            waktuTamatKerja = Date.now(); // SET TIMESTAMP MASA TAMAT
+            
             if(sedangRehat) {
-                // Kalau dia tengah rehat pastu terus tekan stop (contoh shift habis masa mesin masih down)
-                let tempohRehatBaru = (Date.now() - waktuMulaRehat) / 1000;
+                let tempohRehatBaru = (waktuTamatKerja - waktuMulaRehat) / 1000;
                 totalRehatSaat += tempohRehatBaru;
             }
-
-            // Kiraan Akhir (Timestamp Tamat Kerja)
-            let waktuTamatKerja = Date.now();
-            let totalMasaDiKilang = (waktuTamatKerja - waktuMulaKerja) / 1000;
-            totalKerjaSaat = totalMasaDiKilang - totalRehatSaat;
 
             document.getElementById("btnPause").disabled = true; document.getElementById("btnStop").disabled = true;
             statusBadge.innerText = "SELESAI (KIRAAN HASIL)"; statusBadge.style.background = "#ff3366";
@@ -214,35 +213,34 @@
             let output = parseInt(document.getElementById("outputInput").value);
             let reject = parseInt(document.getElementById("rejectInput").value) || 0;
 
-            if(!output && output !== 0) { alert("Sila masukkan Total Output!"); return; } // Benarkan 0 untuk kerja setting
+            if(!output && output !== 0) { alert("Sila masukkan Total Output!"); return; } 
             
-            // Tukar butang jadi Sedang Dihantar (elak double click)
             let btn = document.getElementById("btnSubmit");
             btn.innerText = "⏳ Sedang Menghantar...";
             btn.disabled = true;
             btn.style.background = "#888";
 
-            // Bungkus Data untuk dihantar ke Google Sheets
+            // INI BAHAGIAN YANG DIPERBETULKAN (MAPPING SAMA DENGAN APPS SCRIPT)
             let dataPayload = {
-                "ID_Pekerja": document.getElementById("idInput").value,
-                "No_Artikel": document.getElementById("artikelInput").value,
-                "Proses": document.getElementById("prosesInput").value,
-                "Total_Kerja_Saat": totalKerjaSaat.toFixed(0),
-                "Total_Downtime_Saat": totalRehatSaat.toFixed(0),
-                "Sebab_Downtime": totalRehatSaat > 0 ? sebabDowntimeTerkini : "Tiada",
-                "Total_Output": output,
-                "Total_Reject": reject
+                "id_operator": document.getElementById("idInput").value,
+                "no_artikel": document.getElementById("artikelInput").value,
+                "job_order": document.getElementById("joInput").value || "-",
+                "proses": document.getElementById("prosesInput").value,
+                "output": output,
+                "reject": reject,
+                "downtime": Math.floor(totalRehatSaat / 60) + " minit", // Tukar jadi minit
+                "time_start": formatWaktu(waktuMulaKerja), // Tukar jadi "08:00 AM"
+                "time_end": formatWaktu(waktuTamatKerja)   // Tukar jadi "10:30 AM"
             };
 
-            // HANTAR DATA (POST METHOD)
             fetch(WEB_APP_URL, {
                 method: "POST",
                 body: JSON.stringify(dataPayload)
             })
             .then(response => response.json())
             .then(res => {
-                alert("LAPORAN BERJAYA DISIMPAN KE GOOGLE SHEETS!");
-                window.location.reload(); // Reset terminal untuk job seterusnya
+                alert("LAPORAN BERJAYA DISIMPAN!");
+                window.location.reload(); 
             })
             .catch(error => {
                 alert("Ralat! Data gagal dihantar. Semak internet atau URL.");
