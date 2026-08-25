@@ -45,10 +45,9 @@
     <div class="mes-container">
         <h2>Terminal Operasi</h2>
 
-        <!-- Input Data Awal (DITAMBAH JOB ORDER) -->
         <div class="form-group">
             <label>ID Pekerja (Operator)</label>
-            <input type="text" id="idInput" placeholder="Cth: OP101">
+            <input type="text" id="idInput" placeholder="Sila Login Terlebih Dahulu">
         </div>
         <div class="form-group">
             <label>No. Artikel</label>
@@ -103,11 +102,11 @@
     </div>
 
     <script>
-// MASUKKAN URL WEB APP KAU KAT SINI !!
+        // SATU SAHAJA URL WEB APP
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
 
         // ==========================================
-        // KOD BARU: BACA NAMA DARI MEMORI TELEFON
+        // KOD BACA NAMA DARI MEMORI TELEFON
         // ==========================================
         let namaOperator = localStorage.getItem("mes_nama");
         let idOperator = localStorage.getItem("mes_username");
@@ -115,24 +114,22 @@
         // Kalau ada data login
         if(namaOperator && idOperator) {
             // Tukar tajuk kat atas sekali
-            document.querySelector("h2").innerText = "👷‍♂️ Hai, " + namaOperator + " (" + idOperator + ")";
+            document.querySelector("h2").innerText = "👷‍♂️ Hai, " + namaOperator;
             
-            // Auto-isi kotak ID dan kuncikan supaya operator tak payah taip lagi
+            // Auto-isi kotak ID dan kuncikan
             let inputId = document.getElementById("idInput");
             inputId.value = idOperator;
             inputId.disabled = true;
-            inputId.style.background = "#555"; // Gelapkan sikit tanda dah dikunci
+            inputId.style.background = "#555"; 
         } else {
-            // Kalau dorang pandai-pandai bypass login, tendang balik ke skrin depan
+            // Kalau bypass login, tendang ke skrin depan
             alert("Sila log masuk terlebih dahulu!");
             window.location.href = "index.html";
         }
         // ==========================================
-        // MASUKKAN URL WEB APP KAU KAT SINI !!
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
 
         let waktuMulaKerja = 0;
-        let waktuTamatKerja = 0; // DITAMBAH UNTUK KIRA MASA TAMAT
+        let waktuTamatKerja = 0; 
         let waktuMulaRehat = 0;
         
         let totalRehatSaat = 0;
@@ -150,7 +147,6 @@
             return `${String(j).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        // FUNGSI UNTUK TUKAR TIMESTAMP KE "08:00 AM"
         function formatWaktu(ms) {
             if(!ms) return "-";
             let date = new Date(ms);
@@ -159,7 +155,7 @@
 
         function mulaProses() {
             if(!document.getElementById("idInput").value || !document.getElementById("artikelInput").value || !document.getElementById("prosesInput").value) {
-                alert("Isi ID Pekerja, Artikel & Proses dahulu!"); return;
+                alert("Isi Artikel & Proses dahulu!"); return;
             }
             document.getElementById("idInput").disabled = true; 
             document.getElementById("artikelInput").disabled = true; 
@@ -222,7 +218,7 @@
 
         function bukaModalStop() {
             clearInterval(UI_Interval);
-            waktuTamatKerja = Date.now(); // SET TIMESTAMP MASA TAMAT
+            waktuTamatKerja = Date.now(); 
             
             if(sedangRehat) {
                 let tempohRehatBaru = (waktuTamatKerja - waktuMulaRehat) / 1000;
@@ -245,7 +241,6 @@
             btn.disabled = true;
             btn.style.background = "#888";
 
-            // INI BAHAGIAN YANG DIPERBETULKAN (MAPPING SAMA DENGAN APPS SCRIPT)
             let dataPayload = {
                 "id_operator": document.getElementById("idInput").value,
                 "no_artikel": document.getElementById("artikelInput").value,
@@ -253,9 +248,9 @@
                 "proses": document.getElementById("prosesInput").value,
                 "output": output,
                 "reject": reject,
-                "downtime": Math.floor(totalRehatSaat / 60) + " minit", // Tukar jadi minit
-                "time_start": formatWaktu(waktuMulaKerja), // Tukar jadi "08:00 AM"
-                "time_end": formatWaktu(waktuTamatKerja)   // Tukar jadi "10:30 AM"
+                "downtime": Math.floor(totalRehatSaat / 60) + " minit", 
+                "time_start": formatWaktu(waktuMulaKerja), 
+                "time_end": formatWaktu(waktuTamatKerja)   
             };
 
             fetch(WEB_APP_URL, {
