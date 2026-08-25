@@ -103,6 +103,31 @@
     </div>
 
     <script>
+// MASUKKAN URL WEB APP KAU KAT SINI !!
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
+
+        // ==========================================
+        // KOD BARU: BACA NAMA DARI MEMORI TELEFON
+        // ==========================================
+        let namaOperator = localStorage.getItem("mes_nama");
+        let idOperator = localStorage.getItem("mes_username");
+
+        // Kalau ada data login
+        if(namaOperator && idOperator) {
+            // Tukar tajuk kat atas sekali
+            document.querySelector("h2").innerText = "👷‍♂️ Hai, " + namaOperator + " (" + idOperator + ")";
+            
+            // Auto-isi kotak ID dan kuncikan supaya operator tak payah taip lagi
+            let inputId = document.getElementById("idInput");
+            inputId.value = idOperator;
+            inputId.disabled = true;
+            inputId.style.background = "#555"; // Gelapkan sikit tanda dah dikunci
+        } else {
+            // Kalau dorang pandai-pandai bypass login, tendang balik ke skrin depan
+            alert("Sila log masuk terlebih dahulu!");
+            window.location.href = "index.html";
+        }
+        // ==========================================
         // MASUKKAN URL WEB APP KAU KAT SINI !!
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
 
