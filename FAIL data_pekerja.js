@@ -3,8 +3,8 @@ const senaraiPekerja = {
     // ==========================================
     // AKAUN PENGURUSAN (MANAGER / ENGINEER)
     // ==========================================
-    "ENG01": { pass: "admin123", role: "manager", nama: "Bos Salik" },
-    "MGR99": { pass: "bosbesar", role: "manager", nama: "Pengurus Besar" },
+    "2066": { pass: "2066", role: "manager", nama: "Salik Syahid" },
+    "Manager": { pass: "manager", role: "manager", nama: "MANAGER" },
 
     // ==========================================
     // AKAUN OPERATOR KILANG (DARI SENARAI SEBENAR)
