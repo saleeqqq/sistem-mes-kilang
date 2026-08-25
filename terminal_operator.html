@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- KOD ANTI-CACHE -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     
     <title>Sistem Tracker MES Operator</title>
+    
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #1e1e2f; color: white; margin: 0; padding: 20px; }
         .mes-container { background: #2a2a40; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-width: 450px; margin: auto; }
-        h2 { text-align: center; color: #4db8ff; margin-top: 0; border-bottom: 1px solid #4db8ff; padding-bottom: 10px; }
+        h2 { text-align: center; color: #4db8ff; margin-top: 0; border-bottom: 1px solid #4db8ff; padding-bottom: 10px; font-size: 18px; }
         
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #a9b0c0; font-size: 14px;}
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #a9b0c0; font-size: 13px;}
         input, select { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3f3f5a; color: white; font-size: 15px; box-sizing: border-box; }
         input:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        .btn-qr { background: #ffaa00; color: black; font-weight: bold; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+        
         .timer-display { background: #151521; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0; border: 2px solid #3f3f5a; }
-        .time-main { font-size: 40px; font-weight: bold; font-family: monospace; color: #00ff88; letter-spacing: 2px; }
+        .time-main { font-size: 35px; font-weight: bold; font-family: monospace; color: #00ff88; letter-spacing: 2px; }
         .time-pause { font-size: 14px; color: #ff5555; margin-top: 5px; font-family: monospace; }
         .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 10px; background: #555; color: white; }
 
@@ -30,17 +31,24 @@
         button:disabled { opacity: 0.3; cursor: not-allowed; }
         .btn-start { background: #00ff88; color: #000; grid-column: span 2; }
         .btn-pause { background: #ffaa00; color: #000; }
-        .btn-resume { background: #00aaff; color: #fff; }
         .btn-stop { background: #ff3366; color: #fff; }
 
         .modal { display: none; background: #3f3f5a; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 5px solid #ff3366; }
         .qty-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .qty-grid input { background: white; color: black; font-weight: bold; text-align: center;}
         .reject-input { border: 2px solid #ff5555 !important; }
-        .btn-submit { background: #4db8ff; width: 100%; margin-top: 15px; color: black; }
+        
+        #qrModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; padding: 20px; box-sizing: border-box; }
+        #reader { width: 100%; max-width: 400px; margin: auto; background: white; border-radius: 8px; overflow: hidden; }
     </style>
 </head>
 <body>
+
+    <div id="qrModal">
+        <h3 style="text-align: center; color: #00ff88;">📷 Halakan ke QR Code</h3>
+        <div id="reader"></div>
+        <button onclick="tutupScanner()" style="background: #ff3366; width: 100%; max-width: 400px; display: block; margin: 20px auto;">TUTUP SCANNER</button>
+    </div>
 
     <div class="mes-container">
         <h2>Terminal Operasi</h2>
@@ -49,23 +57,44 @@
             <label>ID Pekerja (Operator)</label>
             <input type="text" id="idInput" placeholder="Sila Login Terlebih Dahulu">
         </div>
+        
         <div class="form-group">
-            <label>No. Artikel</label>
-            <input type="text" id="artikelInput" placeholder="Cth: ART-1234">
+            <label>Proses Utama (Scan QR)</label>
+            <div style="display: flex; gap: 10px;">
+                <select id="prosesUtama" onchange="kemaskiniSubProses()" style="flex: 1;">
+                    <option value="">-- Pilih Manual / Scan --</option>
+                    <option value="Welding">Welding</option>
+                    <option value="Shear Cut">Shear Cut</option>
+                    <option value="Flattening">Flattening</option>
+                    <option value="Trimming">Trimming</option>
+                    <option value="Trimming HTM">Trimming HTM</option>
+                    <option value="Angle Press">Angle Press</option>
+                    <option value="Netting Checking">Netting Checking</option>
+                    <option value="Bundle Packing">Bundle Packing</option>
+                    <option value="Pallet Packing">Pallet Packing</option>
+                </select>
+                <button class="btn-qr" onclick="bukaScanner()">📷 SCAN</button>
+            </div>
         </div>
+
+        <div class="form-group" id="divSubProses" style="display: none; background: #31314a; padding: 10px; border-radius: 6px; border-left: 3px solid #00aaff;">
+            <label>Sub-Proses / Peringkat</label>
+            <select id="subProses"></select>
+        </div>
+
+        <div class="form-group" id="divMesin" style="display: none; background: #31314a; padding: 10px; border-radius: 6px; border-left: 3px solid #ffaa00;">
+            <label>Nombor Mesin Welding</label>
+            <select id="mesinSelect"></select>
+        </div>
+
+        <div class="form-group">
+            <label>No. Artikel (Taip Manual)</label>
+            <input type="text" id="artikelInput" placeholder="Cth: ART-1234" autocomplete="off">
+        </div>
+
         <div class="form-group">
             <label>Job Order (JO)</label>
-            <input type="text" id="joInput" placeholder="Cth: JO-9992">
-        </div>
-        <div class="form-group">
-            <label>Proses Semasa</label>
-            <select id="prosesInput">
-                <option value="">-- Pilih Proses --</option>
-                <option value="Setting">Setting / Tukar Mould</option>
-                <option value="Cutting">Cutting</option>
-                <option value="Bending">Bending</option>
-                <option value="Welding">Welding</option>
-            </select>
+            <input type="text" id="joInput" placeholder="Cth: JO-9992" autocomplete="off">
         </div>
 
         <div class="timer-display">
@@ -81,7 +110,6 @@
             <button class="btn-stop" id="btnStop" onclick="bukaModalStop()" disabled>⏹ STOP</button>
         </div>
 
-        <!-- POP-UP DOWNTIME -->
         <div id="downtimeModal" class="modal" style="border-left: 5px solid #ffaa00;">
             <select id="sebabDowntime" style="margin-bottom: 10px; background: white; color: black;">
                 <option value="Tandas/Rehat">Ke Tandas / Rehat</option>
@@ -91,161 +119,262 @@
             <button class="btn-start" onclick="sahkanDowntime()" style="width: 100%; padding: 10px;">SAHKAN DOWNTIME</button>
         </div>
 
-        <!-- POP-UP HANTAR HASIL -->
         <div id="stopModal" class="modal">
             <div class="qty-grid">
                 <div class="form-group"><label>TOTAL OUTPUT</label><input type="number" id="outputInput" placeholder="0"></div>
                 <div class="form-group"><label style="color:#ff5555;">REJECT</label><input type="number" id="rejectInput" class="reject-input" value="0"></div>
             </div>
-            <button class="btn-submit" id="btnSubmit" onclick="hantarData()">🚀 HANTAR KE SISTEM</button>
+            <button style="background: #4db8ff; width: 100%; margin-top: 15px; color: black;" id="btnSubmit" onclick="hantarData()">🚀 HANTAR KE SISTEM</button>
         </div>
     </div>
 
     <script>
-        // SATU SAHAJA URL WEB APP
+        // MASUKKAN URL APPS SCRIPT KAU DI SINI
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
 
-        // ==========================================
-        // KOD BACA NAMA DARI MEMORI TELEFON
-        // ==========================================
         let namaOperator = localStorage.getItem("mes_nama");
         let idOperator = localStorage.getItem("mes_username");
 
-        // Kalau ada data login
         if(namaOperator && idOperator) {
-            // Tukar tajuk kat atas sekali
             document.querySelector("h2").innerText = "👷‍♂️ Hai, " + namaOperator;
-            
-            // Auto-isi kotak ID dan kuncikan
             let inputId = document.getElementById("idInput");
             inputId.value = idOperator;
             inputId.disabled = true;
             inputId.style.background = "#555"; 
         } else {
-            // Kalau bypass login, tendang ke skrin depan
             alert("Sila log masuk terlebih dahulu!");
             window.location.href = "index.html";
         }
+
         // ==========================================
+        // FUNGSI JANA DROPDOWN SUB & MESIN
+        // ==========================================
+        function kemaskiniSubProses() {
+            let proses = document.getElementById("prosesUtama").value;
+            let divSub = document.getElementById("divSubProses");
+            let selSub = document.getElementById("subProses");
+            let divMesin = document.getElementById("divMesin");
+            let selMesin = document.getElementById("mesinSelect");
 
-        let waktuMulaKerja = 0;
-        let waktuTamatKerja = 0; 
-        let waktuMulaRehat = 0;
-        
-        let totalRehatSaat = 0;
-        
-        let UI_Interval = null; 
-        let sedangRehat = false;
-        let sebabDowntimeTerkini = "Tiada";
+            selSub.innerHTML = "";
+            selMesin.innerHTML = "";
 
+            if(proses) {
+                divSub.style.display = "block";
+                
+                let kod = proses.charAt(0); 
+                if (proses === "Shear Cut") kod = "SC";
+                else if (proses === "Trimming HTM") kod = "TH";
+                else if (proses === "Angle Press") kod = "AP";
+                else if (proses === "Netting Checking") kod = "NC";
+                else if (proses === "Bundle Packing") kod = "BP";
+                else if (proses === "Pallet Packing") kod = "PP";
+                
+                selSub.innerHTML += `<option value="${proses}">Peringkat Biasa / Penuh</option>`;
+                selSub.innerHTML += `<option value="${kod}-1">${proses} 1 (${kod}-1)</option>`;
+                selSub.innerHTML += `<option value="${kod}-2">${proses} 2 (${kod}-2)</option>`;
+                selSub.innerHTML += `<option value="${kod}-3">${proses} 3 (${kod}-3)</option>`;
+                selSub.innerHTML += `<option value="${kod}-4">${proses} 4 (${kod}-4)</option>`;
+
+                if(proses === "Welding") {
+                    divMesin.style.display = "block";
+                    selMesin.innerHTML += `<option value="">-- Sila Pilih Mesin --</option>`;
+                    for(let i=1; i<=12; i++) {
+                        selMesin.innerHTML += `<option value="W${i}">Mesin W${i}</option>`;
+                    }
+                } else {
+                    divMesin.style.display = "none";
+                }
+            } else {
+                divSub.style.display = "none"; divMesin.style.display = "none";
+            }
+        }
+
+        // ==========================================
+        // OTAK SCANNER PINTAR (W1 vs W-1)
+        // ==========================================
+        let html5QrcodeScanner = null;
+
+        function bukaScanner() {
+            document.getElementById("qrModal").style.display = "block";
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        }
+
+        function tutupScanner() {
+            document.getElementById("qrModal").style.display = "none";
+            if(html5QrcodeScanner) { html5QrcodeScanner.clear(); }
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            tutupScanner(); 
+            let textScan = decodedText.toUpperCase().trim(); 
+            let selectUtama = document.getElementById("prosesUtama");
+            
+            let matchedUtama = "";
+            let matchedSub = "";
+            let matchedMesin = "";
+
+            // 1. KESAN KALAU DIA SCAN MESIN WELDING (W1 - W12)
+            let cariMesin = textScan.match(/\bW([1-9]|1[0-2])\b/); 
+            if (cariMesin && !textScan.includes("W-")) {
+                matchedUtama = "Welding";
+                matchedMesin = "W" + cariMesin[1]; // Contoh: W1, W12
+            }
+
+            // 2. KESAN KALAU DIA SCAN PERINGKAT WELDING (W-1 - W-4)
+            let cariProsesW = textScan.match(/W-([1-4])/);
+            if (cariProsesW) {
+                matchedUtama = "Welding";
+                matchedSub = "W-" + cariProsesW[1]; // Contoh: W-1, W-2
+            }
+
+            // 3. KESAN PROSES LAIN (Shear Cut, Trimming, dll)
+            if (!matchedUtama) {
+                for (let i = 0; i < selectUtama.options.length; i++) {
+                    let optVal = selectUtama.options[i].value; 
+                    if(!optVal) continue;
+                    
+                    let kod = optVal.charAt(0);
+                    if (optVal === "Shear Cut") kod = "SC";
+                    else if (optVal === "Trimming HTM") kod = "TH";
+                    else if (optVal === "Angle Press") kod = "AP";
+                    else if (optVal === "Netting Checking") kod = "NC";
+                    else if (optVal === "Bundle Packing") kod = "BP";
+                    else if (optVal === "Pallet Packing") kod = "PP";
+
+                    let namaProses = optVal.toUpperCase(); 
+                    
+                    if (textScan.includes(namaProses) || textScan.includes(kod + "-")) {
+                        matchedUtama = optVal;
+                        let cariSubLain = textScan.match(new RegExp(kod + "-([1-4])"));
+                        if(cariSubLain) {
+                            matchedSub = kod + "-" + cariSubLain[1];
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // TINDAKAN JIKA BERJAYA
+            if (matchedUtama || textScan === "WELDING") {
+                if (!matchedUtama) matchedUtama = "Welding"; 
+                
+                let mesej = "✅ Berjaya Scan!\n👉 Proses: " + matchedUtama;
+                if (matchedMesin) mesej += "\n👉 Mesin: " + matchedMesin;
+                if (matchedSub) mesej += "\n👉 Peringkat: " + matchedSub;
+                alert(mesej);
+                
+                selectUtama.value = matchedUtama;
+                kemaskiniSubProses(); 
+                
+                // Set nilai sub-proses / mesin secara automatik
+                setTimeout(() => {
+                    if(matchedSub) document.getElementById("subProses").value = matchedSub;
+                    if(matchedMesin) document.getElementById("mesinSelect").value = matchedMesin;
+                }, 50);
+
+            } else {
+                alert("❌ Gagal. QR Code ('" + textScan + "') tidak dikenali.");
+            }
+        }
+        function onScanFailure(error) { }
+
+
+        // ==========================================
+        // FUNGSI JAM & HANTAR DATA
+        // ==========================================
+        let waktuMulaKerja = 0, waktuTamatKerja = 0, waktuMulaRehat = 0, totalRehatSaat = 0, UI_Interval = null, sedangRehat = false, sebabDowntimeTerkini = "Tiada";
         const statusBadge = document.getElementById("statusBadge");
 
         function formatMasa(totalSaat) {
-            let j = Math.floor(totalSaat / 3600);
-            let m = Math.floor((totalSaat - (j * 3600)) / 60);
-            let s = Math.floor(totalSaat - (j * 3600) - (m * 60));
+            let j = Math.floor(totalSaat / 3600), m = Math.floor((totalSaat - (j * 3600)) / 60), s = Math.floor(totalSaat - (j * 3600) - (m * 60));
             return `${String(j).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
-
         function formatWaktu(ms) {
             if(!ms) return "-";
-            let date = new Date(ms);
-            return date.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
+            return new Date(ms).toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
         }
 
         function mulaProses() {
-            if(!document.getElementById("idInput").value || !document.getElementById("artikelInput").value || !document.getElementById("prosesInput").value) {
-                alert("Isi Artikel & Proses dahulu!"); return;
-            }
-            document.getElementById("idInput").disabled = true; 
-            document.getElementById("artikelInput").disabled = true; 
-            document.getElementById("joInput").disabled = true; 
-            document.getElementById("prosesInput").disabled = true;
+            let proses = document.getElementById("prosesUtama").value;
+            let sub = document.getElementById("subProses").value;
+            let art = document.getElementById("artikelInput").value;
+
+            if(!proses || !sub || !art) { alert("Isi Artikel, Proses Utama & Sub-Proses dahulu!"); return; }
+            if(proses === "Welding" && !document.getElementById("mesinSelect").value) { alert("Sila pilih Mesin Welding!"); return; }
+
+            document.getElementById("prosesUtama").disabled = true; document.getElementById("subProses").disabled = true;
+            document.getElementById("mesinSelect").disabled = true; document.getElementById("artikelInput").disabled = true;
+            document.getElementById("joInput").disabled = true; document.querySelector(".btn-qr").style.display = "none";
             
             document.getElementById("btnStart").style.display = "none";
-            document.getElementById("btnPause").disabled = false;
-            document.getElementById("btnStop").disabled = false;
+            document.getElementById("btnPause").disabled = false; document.getElementById("btnStop").disabled = false;
 
-            waktuMulaKerja = Date.now(); 
-            jalankanVisualJam();
+            waktuMulaKerja = Date.now(); jalankanVisualJam();
         }
 
         function jalankanVisualJam() {
-            sedangRehat = false;
-            statusBadge.innerText = "RUNNING"; statusBadge.style.background = "#00ff88";
-            
-            let btnPause = document.getElementById("btnPause");
-            btnPause.innerText = "⏸ BREAKDOWN"; btnPause.className = "btn-pause"; btnPause.onclick = bukaModalDowntime;
+            sedangRehat = false; statusBadge.innerText = "RUNNING"; statusBadge.style.background = "#00ff88";
+            let btnPause = document.getElementById("btnPause"); btnPause.innerText = "⏸ BREAKDOWN"; btnPause.onclick = bukaModalDowntime;
             document.getElementById("btnStop").disabled = false;
-
             clearInterval(UI_Interval);
             UI_Interval = setInterval(() => { 
-                let saatBerlalu = (Date.now() - waktuMulaKerja) / 1000;
-                let bersihKerja = saatBerlalu - totalRehatSaat;
-                document.getElementById("mainTime").innerText = formatMasa(bersihKerja); 
+                document.getElementById("mainTime").innerText = formatMasa(((Date.now() - waktuMulaKerja) / 1000) - totalRehatSaat); 
             }, 1000);
         }
 
         function bukaModalDowntime() {
-            clearInterval(UI_Interval); 
-            document.getElementById("downtimeModal").style.display = "block";
-            document.getElementById("btnPause").disabled = true;
-            document.getElementById("btnStop").disabled = true;
+            clearInterval(UI_Interval); document.getElementById("downtimeModal").style.display = "block";
+            document.getElementById("btnPause").disabled = true; document.getElementById("btnStop").disabled = true;
         }
 
         function sahkanDowntime() {
             document.getElementById("downtimeModal").style.display = "none";
             sebabDowntimeTerkini = document.getElementById("sebabDowntime").value;
-            
             statusBadge.innerText = "DOWNTIME"; statusBadge.style.background = "#ffaa00";
             document.getElementById("downtimeReasonDisplay").innerText = "Sebab: " + sebabDowntimeTerkini;
 
-            waktuMulaRehat = Date.now(); 
-            sedangRehat = true;
-
-            let btnPause = document.getElementById("btnPause");
-            btnPause.disabled = false; btnPause.innerText = "▶ RESUME (SAMBUNG)"; btnPause.className = "btn-resume";
-            
+            waktuMulaRehat = Date.now(); sedangRehat = true;
+            let btnPause = document.getElementById("btnPause"); btnPause.disabled = false; btnPause.innerText = "▶ RESUME (SAMBUNG)";
             btnPause.onclick = function() {
-                let tempohRehatBaru = (Date.now() - waktuMulaRehat) / 1000;
-                totalRehatSaat += tempohRehatBaru;
+                totalRehatSaat += (Date.now() - waktuMulaRehat) / 1000;
                 document.getElementById("downtimeReasonDisplay").innerText = "";
                 document.getElementById("pauseTime").innerText = "Rehat/Downtime: " + formatMasa(totalRehatSaat);
-                
                 jalankanVisualJam();
             };
         }
 
         function bukaModalStop() {
-            clearInterval(UI_Interval);
-            waktuTamatKerja = Date.now(); 
-            
-            if(sedangRehat) {
-                let tempohRehatBaru = (waktuTamatKerja - waktuMulaRehat) / 1000;
-                totalRehatSaat += tempohRehatBaru;
-            }
+            clearInterval(UI_Interval); waktuTamatKerja = Date.now(); 
+            if(sedangRehat) totalRehatSaat += (waktuTamatKerja - waktuMulaRehat) / 1000;
 
             document.getElementById("btnPause").disabled = true; document.getElementById("btnStop").disabled = true;
-            statusBadge.innerText = "SELESAI (KIRAAN HASIL)"; statusBadge.style.background = "#ff3366";
+            statusBadge.innerText = "SELESAI"; statusBadge.style.background = "#ff3366";
             document.getElementById("stopModal").style.display = "block";
         }
 
         function hantarData() {
             let output = parseInt(document.getElementById("outputInput").value);
             let reject = parseInt(document.getElementById("rejectInput").value) || 0;
-
             if(!output && output !== 0) { alert("Sila masukkan Total Output!"); return; } 
             
             let btn = document.getElementById("btnSubmit");
-            btn.innerText = "⏳ Sedang Menghantar...";
-            btn.disabled = true;
-            btn.style.background = "#888";
+            btn.innerText = "⏳ Sedang Menghantar..."; btn.disabled = true; btn.style.background = "#888";
+
+            let prosesUtama = document.getElementById("prosesUtama").value;
+            let subProses = document.getElementById("subProses").value;
+            let namaProsesAkhir = prosesUtama + (subProses !== prosesUtama ? " (" + subProses + ")" : "");
+            
+            if(prosesUtama === "Welding") {
+                namaProsesAkhir += " [Mesin: " + document.getElementById("mesinSelect").value + "]";
+            }
 
             let dataPayload = {
                 "id_operator": document.getElementById("idInput").value,
                 "no_artikel": document.getElementById("artikelInput").value,
                 "job_order": document.getElementById("joInput").value || "-",
-                "proses": document.getElementById("prosesInput").value,
+                "proses": namaProsesAkhir, 
                 "output": output,
                 "reject": reject,
                 "downtime": Math.floor(totalRehatSaat / 60) + " minit", 
@@ -253,20 +382,11 @@
                 "time_end": formatWaktu(waktuTamatKerja)   
             };
 
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify(dataPayload)
-            })
-            .then(response => response.json())
-            .then(res => {
-                alert("LAPORAN BERJAYA DISIMPAN!");
-                window.location.reload(); 
-            })
-            .catch(error => {
-                alert("Ralat! Data gagal dihantar. Semak internet atau URL.");
-                btn.innerText = "🚀 CUBA HANTAR LAGI";
-                btn.disabled = false;
-                btn.style.background = "#4db8ff";
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(dataPayload) })
+            .then(res => res.json()).then(res => {
+                alert("LAPORAN BERJAYA DISIMPAN!"); window.location.reload(); 
+            }).catch(err => {
+                alert("Ralat hantar data!"); btn.innerText = "🚀 CUBA LAGI"; btn.disabled = false; btn.style.background = "#4db8ff";
             });
         }
     </script>
