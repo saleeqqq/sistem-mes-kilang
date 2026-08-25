@@ -39,8 +39,9 @@
         .qty-grid input { background: white; color: black; font-weight: bold; text-align: center;}
         .reject-input { border: 2px solid #ff5555 !important; }
         
-        #qrModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; padding: 20px; box-sizing: border-box; }
-        #reader { width: 100%; max-width: 400px; margin: auto; background: white; border-radius: 8px; overflow: hidden; }
+        /* Modal Scanner Penuh - Dibaiki ruang kosong */
+        #qrModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; padding: 20px; box-sizing: border-box; }
+        #reader { width: 100%; max-width: 400px; min-height: 300px; margin: auto; background: white; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -48,7 +49,7 @@
     <!-- SKRIN SCANNER QR -->
     <div id="qrModal">
         <h3 style="text-align: center; color: #00ff88;">📷 Halakan ke QR Code</h3>
-        <div id="reader"></div>
+        <div id="reader"><span style="color: black; font-weight: bold;" id="loadingText">⏳ Memuatkan kamera...</span></div>
         <button onclick="tutupScanner()" style="background: #ff3366; width: 100%; max-width: 400px; display: block; margin: 20px auto;">TUTUP SCANNER</button>
     </div>
 
@@ -131,7 +132,7 @@
     </div>
 
     <script>
-        // URL WEB APP KAU (Dah dimasukkan siap-siap)
+        // URL WEB APP KAU
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
 
         let namaOperator = localStorage.getItem("mes_nama");
@@ -193,26 +194,60 @@
         }
 
         // ==========================================
-        // OTAK SCANNER PINTAR (DIRECT API - AUTO BUKA KAMERA)
+        // OTAK SCANNER PINTAR (VERSI KEBAL - AUTO PILIH KAMERA)
         // ==========================================
         let html5QrCode = null;
 
         function bukaScanner() {
             document.getElementById("qrModal").style.display = "block";
+            let loadingText = document.getElementById("loadingText");
+            if(loadingText) loadingText.style.display = "block";
             
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("reader");
-            }
+            if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
             
-            // PAKSA BUKA KAMERA BELAKANG TERUS
-            html5QrCode.start(
-                { facingMode: "environment" }, 
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                onScanSuccess,
-                onScanFailure
-            ).catch((err) => {
-                alert("Kamera gagal dibuka. Pastikan anda benarkan (Allow) akses kamera di Google Chrome.\nError: " + err);
-                tutupScanner();
+            // CARA KEBAL: Cari senarai semua kamera yang ada kat telefon
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length) {
+                    
+                    // Kita anggap kamera terakhir dalam senarai adalah kamera belakang
+                    let cameraId = devices[devices.length - 1].id;
+                    
+                    // Tapisan tambahan: Cari perkataan 'back' atau 'environment' (kamera belakang)
+                    for(let i=0; i<devices.length; i++) {
+                        if(devices[i].label.toLowerCase().includes("back") || devices[i].label.toLowerCase().includes("belakang") || devices[i].label.toLowerCase().includes("environment")) {
+                            cameraId = devices[i].id;
+                            break;
+                        }
+                    }
+
+                    // Mula pasang kamera yang dipilih
+                    html5QrCode.start(
+                        cameraId, 
+                        { fps: 10, qrbox: { width: 250, height: 250 } },
+                        onScanSuccess,
+                        onScanFailure
+                    ).then(() => {
+                        if(loadingText) loadingText.style.display = "none";
+                    }).catch((err) => {
+                        alert("Sila beri kebenaran (Allow) untuk akses kamera. Error: " + err);
+                        tutupScanner();
+                    });
+
+                } else {
+                    alert("Tiada lensa kamera dikesan pada peranti ini!");
+                    tutupScanner();
+                }
+            }).catch(err => {
+                // Kalau getCameras gagal, cuba cara lama
+                html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onScanSuccess,
+                    onScanFailure
+                ).catch((err2) => {
+                    alert("Kamera disekat oleh browser. Sila 'Allow Camera'.");
+                    tutupScanner();
+                });
             });
         }
 
