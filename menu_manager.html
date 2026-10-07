@@ -4,60 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Pengurusan - Sistem MES</title>
-    <!-- Font Awesome for industrial-grade icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts for better typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- External Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <style>
+        /* CSS VARIABLES */
         :root {
-            /* Enterprise Color Palette */
-            --mes-bg-dark: #090e17;
-            --mes-surface-main: #131b2c;
-            --mes-surface-card: #172136;
-            --mes-surface-hover: #1e2a45;
+            --bg-main: #070b14;
+            --bg-secondary: #0d1b2a;
+            --bg-card: rgba(15, 23, 42, 0.7);
+            --bg-hover: rgba(30, 41, 59, 0.9);
             
-            /* Typography Colors */
-            --mes-text-primary: #f1f5f9;
-            --mes-text-secondary: #94a3b8;
-            --mes-text-muted: #64748b;
+            --border-light: rgba(148, 163, 184, 0.15);
+            --border-focus: rgba(14, 165, 233, 0.4);
             
-            /* Status & Accent Colors */
-            --mes-accent-primary: #0ea5e9; /* Light Blue */
-            --mes-status-online: #10b981; /* Emerald Green */
-            --mes-status-warning: #f59e0b; /* Amber */
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
             
-            /* Border & Effects */
-            --mes-border-light: rgba(148, 163, 184, 0.1);
-            --mes-border-focus: rgba(14, 165, 233, 0.3);
-            --mes-shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.2);
-            --mes-shadow-glow: 0 0 15px rgba(14, 165, 233, 0.15);
+            --cyan: #0ea5e9;
+            --blue: #3b82f6;
+            --teal: #14b8a6;
+            --danger: #ef4444;
+            --success: #10b981;
             
-            /* Transitions */
-            --transition-smooth: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --shadow-glow-cyan: 0 0 15px rgba(14, 165, 233, 0.15);
+            --shadow-glow-blue: 0 0 15px rgba(59, 130, 246, 0.15);
+            --shadow-glow-teal: 0 0 15px rgba(20, 184, 166, 0.15);
+            
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: var(--mes-bg-dark);
-            color: var(--mes-text-primary);
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 2rem;
             position: relative;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Subtle grid background for industrial feel */
+        /* BACKGROUND STYLING */
         body::before {
             content: '';
             position: fixed;
@@ -66,25 +66,12 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(var(--mes-border-light) 1px, transparent 1px),
-                linear-gradient(90deg, var(--mes-border-light) 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: 0.3;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* Soft central glow */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80vw;
-            height: 50vh;
-            background: radial-gradient(ellipse at top, rgba(14, 165, 233, 0.05), transparent 70%);
-            z-index: -1;
+                radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.08) 0%, transparent 60%),
+                linear-gradient(var(--border-light) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            opacity: 0.5;
+            z-index: -2;
             pointer-events: none;
         }
 
@@ -94,102 +81,462 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            flex-grow: 1;
             gap: 2rem;
+            flex-grow: 1;
+            animation: fadeInDown 0.6s ease-out both;
         }
 
-        /* --- HEADER SECTION --- */
+        /* HEADER */
         .mes-header {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--mes-border-light);
-            animation: fadeDown 0.5s ease-out;
+            align-items: center;
+            box-shadow: var(--shadow-soft);
         }
 
         .header-brand {
             display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .brand-subtitle {
+        .header-icon {
+            font-size: 2rem;
+            color: var(--cyan);
+            background: rgba(14, 165, 233, 0.1);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+        }
+
+        .header-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.2rem;
+        }
+
+        .header-text p {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
-            color: var(--mes-accent-primary);
+            color: var(--cyan);
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 1px;
             font-weight: 500;
         }
 
-        .brand-title {
-            font-size: 1.75rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .brand-title i {
-            color: var(--mes-text-secondary);
-            font-size: 1.5rem;
-        }
-
         .header-meta {
+            text-align: right;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: 0.5rem;
         }
 
-        .system-status {
-            display: flex;
+        .sys-status {
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 6px;
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid rgba(16, 185, 129, 0.2);
-            padding: 0.35rem 0.75rem;
-            border-radius: 4px; /* More industrial square look */
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--success);
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .status-dot {
             width: 6px;
             height: 6px;
-            background-color: var(--mes-status-online);
+            background-color: var(--success);
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--mes-status-online);
+            animation: pulse-online 2s infinite;
         }
 
-        .status-text {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--mes-status-online);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-        }
-
-        .system-clock {
+        .sys-clock {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem;
-            color: var(--mes-text-secondary);
+            color: var(--text-secondary);
         }
 
-        /* --- MODULES GRID --- */
-        .modules-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            animation: fadeUp 0.6s ease-out 0.1s backwards;
-        }
-
-        .module-card {
-            background-color: var(--mes-surface-card);
-            border: 1px solid var(--mes-border-light);
-            border-radius: 8px; /* Professional slight roundness */
-            padding: 2rem;
-            text-decoration: none;
-            color: var(--mes-text-primary);
+        /* STATUS BAR */
+        .status-bar {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .status-bar-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-metrics {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .metric-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+        }
+
+        /* MODULE CARDS GRID */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.5rem;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .menu-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* Border top accents */
+        .menu-card:nth-child(1) { border-top: 3px solid var(--cyan); }
+        .menu-card:nth-child(2) { border-top: 3px solid var(--blue); }
+        .menu-card:nth-child(3) { border-top: 3px solid var(--teal); }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            background: var(--bg-hover);
+        }
+        
+        .menu-card:nth-child(1):hover {
+            border-color: var(--cyan);
+            box-shadow: var(--shadow-soft), var(--shadow-glow-cyan);
+        }
+        .menu-card:nth-child(2):hover {
+            border-color: var(--blue);
+            box-shadow: var(--shadow-soft), var(--shadow-glow-blue);
+        }
+        .menu-card:nth-child(3):hover {
+            border-color: var(--teal);
+            box-shadow: var(--shadow-soft), var(--shadow-glow-teal);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-card:nth-child(1) .card-icon { color: var(--cyan); }
+        .menu-card:nth-child(2) .card-icon { color: var(--blue); }
+        .menu-card:nth-child(3) .card-icon { color: var(--teal); }
+
+        .menu-card:hover .card-icon {
+            transform: scale(1.1);
+        }
+
+        .card-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+
+        .card-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-top: 1px solid var(--border-light);
+            padding-top: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .menu-card:nth-child(1) .card-action { color: var(--cyan); }
+        .menu-card:nth-child(2) .card-action { color: var(--blue); }
+        .menu-card:nth-child(3) .card-action { color: var(--teal); }
+
+        .card-action i {
+            transition: transform 0.3s ease;
+        }
+
+        .menu-card:hover .card-action i {
+            transform: translateX(5px);
+        }
+
+        /* LOGOUT BUTTON */
+        .footer-action {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: auto;
+            padding-top: 1rem;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(239, 68, 68, 0.05);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-online {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 992px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .status-metrics {
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1.5rem; }
+            .mes-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .header-meta {
+                align-items: flex-start;
+                text-align: left;
+            }
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+            .status-metrics {
+                flex-wrap: wrap;
+            }
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-action {
+                justify-content: center;
+            }
+            .btn-logout {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout-container">
+        
+        <!-- HEADER -->
+        <header class="mes-header">
+            <div class="header-brand">
+                <div class="header-icon">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+                <div class="header-text">
+                    <h1>MES MANAGEMENT CENTER</h1>
+                    <p>Ruang Pengurusan</p>
+                </div>
+            </div>
+            
+            <div class="header-meta">
+                <div class="sys-status">
+                    <span class="status-dot"></span> SYSTEM ONLINE
+                </div>
+                <div class="sys-clock" id="liveClock">
+                    <!-- Fallback if JS fails -->
+                    <span>Live</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- STATUS BAR -->
+        <div class="status-bar">
+            <div class="status-bar-title">SYSTEM STATUS</div>
+            <div class="status-metrics">
+                <div class="metric-item">
+                    <span class="status-dot"></span>
+                    <span class="metric-label">NETWORK</span> ONLINE
+                </div>
+                <div class="metric-item">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span class="metric-label">MODULES</span> 3 ACTIVE
+                </div>
+                <div class="metric-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="metric-label">SYSTEM</span> SECURED
+                </div>
+            </div>
+        </div>
+
+        <!-- MENU MODULES -->
+        <main class="menu-grid">
+            
+            <!-- Card 1 -->
+            <a href="senarai_artikel.html" class="menu-card">
+                <div class="card-icon"><i class="fa-solid fa-folder-open"></i></div>
+                <div class="card-label">MASTER ARTIKEL</div>
+                <h2 class="card-title">Buku Spesifikasi</h2>
+                <p class="card-desc">Urus dan semak maklumat master artikel serta spesifikasi produk dengan sistem kawalan berpusat.</p>
+                <div class="card-action">
+                    <span>OPEN MODULE</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 2 -->
+            <a href="output_harian.html" class="menu-card">
+                <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="card-label">PRODUCTION MONITORING</div>
+                <h2 class="card-title">Output Harian Operator</h2>
+                <p class="card-desc">Pantau output, pencapaian dan prestasi pengeluaran operator setiap hari secara masa nyata.</p>
+                <div class="card-action">
+                    <span>OPEN MODULE</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 3 -->
+            <a href="kehadiran_ot.html" class="menu-card">
+                <div class="card-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div class="card-label">WORKFORCE TRACKING</div>
+                <h2 class="card-title">Kehadiran & Jam OT</h2>
+                <p class="card-desc">Semak rekod kehadiran harian operator, pengurusan syif, dan pengiraan jam kerja lebih masa.</p>
+                <div class="card-action">
+                    <span>OPEN MODULE</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </a>
+
+        </main>
+
+        <!-- FOOTER / LOGOUT -->
+        <div class="footer-action">
+            <a href="index.html" class="btn-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> LOG KELUAR
+            </a>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT FOR OPTIONAL ENHANCEMENTS -->
+    <script>
+        try {
+            // Function to update clock
+            function updateClock() {
+                const now = new Date();
+                
+                // Format: DD MMM YYYY, HH:MM:SS
+                const dateOptions = { day: '2-digit', month: 'short', year: 'numeric' };
+                const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+                
+                const dateStr = now.toLocaleDateString('en-GB', dateOptions).toUpperCase();
+                const timeStr = now.toLocaleTimeString('en-US', timeOptions);
+                
+                const clockEl = document.getElementById('liveClock');
+                if(clockEl) {
+                    clockEl.textContent = `${dateStr} • ${timeStr}`;
+                }
+            }
+
+            // Init clock
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+        } catch (error) {
+            console.warn("Script execution failed, fallback UI preserved.", error);
+        }
+    </script>
+</body>
+</html>
