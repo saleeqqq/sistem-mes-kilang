@@ -5,58 +5,434 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <title>Login - Sistem Operasi Kilang</title>
+    
+    <!-- Font Awesome for industrial-grade icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for premium typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #e9ecef; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .login-card { background: white; padding: 40px 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        .logo-placeholder { font-size: 50px; margin-bottom: 10px; }
-        .login-card h2 { margin: 0 0 5px 0; color: #333; font-size: 22px; }
-        .login-card p { color: #777; font-size: 14px; margin-bottom: 25px; }
-        .form-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px; }
-        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; transition: 0.3s; }
-        .btn-login { width: 100%; padding: 12px; background: #0056b3; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .error-msg { color: #ff3366; font-size: 13px; margin-top: 10px; display: none; font-weight: bold; background: #ffe6eb; padding: 10px; border-radius: 6px; }
+        :root {
+            /* Theme Colors */
+            --bg-dark: #070b14;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --border-light: rgba(148, 163, 184, 0.15);
+            --border-focus: rgba(14, 165, 233, 0.4);
+            
+            /* Typography */
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            /* Accents & Status */
+            --accent-cyan: #0ea5e9;
+            --accent-blue: #3b82f6;
+            --status-online: #10b981;
+            --status-error: #ef4444;
+            --status-error-bg: rgba(239, 68, 68, 0.1);
+            
+            /* Shadows & Glow */
+            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.4);
+            --glow-cyan: 0 0 20px rgba(14, 165, 233, 0.2);
+            --glow-cyan-strong: 0 0 15px rgba(14, 165, 233, 0.4);
+            
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* --- BACKGROUND DIGITAL GRID & GLOW --- */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 50% -20%, rgba(14, 165, 233, 0.15), transparent 60%),
+                linear-gradient(var(--border-light) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            opacity: 0.4;
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70vw;
+            height: 40vh;
+            background: radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.08), transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- LOGIN CARD GLASSMORPHISM --- */
+        .login-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-card), var(--glow-cyan);
+            animation: cardFadeIn 0.8s ease-out forwards;
+            position: relative;
+        }
+
+        /* Top Accent Line */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        /* --- BRANDING & HEADER --- */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-container {
+            width: 64px;
+            height: 64px;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px auto;
+            color: var(--accent-cyan);
+            font-size: 28px;
+            box-shadow: inset 0 0 15px rgba(14, 165, 233, 0.05);
+            animation: logoScale 1s ease-out;
+        }
+
+        .brand-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .brand-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        /* --- SYSTEM STATUS --- */
+        .system-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--status-online);
+            letter-spacing: 0.5px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--status-online);
+            border-radius: 50%;
+            animation: pulse-online 2s infinite;
+        }
+
+        /* --- FORM GROUPS --- */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 14px 14px 14px 40px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        input::placeholder {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+
+        input:focus + .input-icon, 
+        input:not(:placeholder-shown) + .input-icon {
+            color: var(--accent-cyan);
+        }
+
+        /* Eye Icon for Password */
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        .toggle-password:hover {
+            color: var(--text-primary);
+        }
+
+        /* --- SUBMIT BUTTON --- */
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-login i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-cyan-strong);
+        }
+
+        .btn-login:hover i {
+            transform: translateX(4px);
+        }
+
+        .btn-login:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        /* --- ERROR MESSAGE --- */
+        .error-msg {
+            display: none; /* Controlled by JS */
+            background: var(--status-error-bg);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--status-error);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 20px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            text-align: left;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .error-msg i {
+            margin-right: 8px;
+        }
+
+        /* --- FOOTER --- */
+        .login-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            animation: cardFadeIn 1s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+
+        .login-footer .secure-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            color: var(--text-secondary);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes logoScale {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-online {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+                border-radius: 16px;
+            }
+            .brand-header h2 {
+                font-size: 1.3rem;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <div class="logo-placeholder">🏭</div>
-        <h2>Portal Sistem MES</h2>
-        <p>Sila log masuk untuk mula bertugas</p>
-
-        <div class="form-group">
-            <label>ID Pengguna</label>
-            <input type="text" id="username" placeholder="Cth: ENG01 atau OP101" autocomplete="off">
+        
+        <div class="brand-header">
+            <div class="logo-container">
+                <i class="fa-solid fa-industry"></i>
+            </div>
+            <h2>PORTAL SISTEM MES</h2>
+            <div class="brand-subtitle">Manufacturing Execution System</div>
+            <div class="system-status">
+                <span class="status-dot"></span> SYSTEM ONLINE
+            </div>
         </div>
 
         <div class="form-group">
-            <label>Kata Laluan</label>
-            <input type="password" id="password" placeholder="Masukkan kata laluan">
+            <label><i class="fa-solid fa-user-shield"></i> ID Pengguna</label>
+            <div class="input-wrapper">
+                <input type="text" id="username" placeholder="Cth: ENG01 atau OP101" autocomplete="off">
+                <i class="fa-solid fa-user input-icon"></i>
+            </div>
         </div>
 
-        <button class="btn-login" onclick="semakLogin()">LOG MASUK</button>
-        <div class="error-msg" id="errorMsg">❌ ID Pengguna atau Kata Laluan salah!</div>
+        <div class="form-group">
+            <label><i class="fa-solid fa-key"></i> Kata Laluan</label>
+            <div class="input-wrapper">
+                <input type="password" id="password" placeholder="Masukkan kata laluan">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <!-- Eye Icon for toggle password -->
+                <i class="fa-solid fa-eye toggle-password" id="togglePasswordIcon" onclick="togglePasswordVisibility()"></i>
+            </div>
+        </div>
+
+        <button class="btn-login" onclick="semakLogin()">
+            LOG MASUK <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+
+        <!-- Error Message (Kekal dengan ID asal) -->
+        <div class="error-msg" id="errorMsg">
+            <i class="fa-solid fa-triangle-exclamation"></i> ID Pengguna atau Kata Laluan salah!
+        </div>
+    </div>
+
+    <!-- Footer Security Badge -->
+    <div class="login-footer">
+        MES • FACTORY DIGITAL OPERATIONS © 2026<br>
+        <span class="secure-badge"><i class="fa-solid fa-shield-halved"></i> Secure Access Portal</span>
     </div>
 
     <!-- PANGGIL FAIL DATABASE PEKERJA KITA -->
     <script src="data_pekerja.js"></script>
 
     <script>
+        // -------------------------------------------------------------
+        // FUNGSI LOGIC ASAL (TIDAK DIUBAH)
+        // -------------------------------------------------------------
         function semakLogin() {
             let user = document.getElementById("username").value.trim().toUpperCase(); 
             let pass = document.getElementById("password").value;
             let errorMsg = document.getElementById("errorMsg");
+            
             errorMsg.style.display = "none";
 
             if (typeof senaraiPekerja === 'undefined') {
-                alert("Ralat Sistem: Fail data_pekerja.js tidak dijumpai!"); return;
+                alert("Ralat Sistem: Fail data_pekerja.js tidak dijumpai!"); 
+                return;
             }
 
             if (senaraiPekerja[user] && senaraiPekerja[user].pass === pass) {
                 let dataPekerja = senaraiPekerja[user];
 
-                // SIMPAN NAMA & ID DALAM MEMORI TELEFON (LOCAL STORAGE)
                 localStorage.setItem("mes_username", user);
                 localStorage.setItem("mes_nama", dataPekerja.nama);
                 localStorage.setItem("mes_role", dataPekerja.role);
@@ -70,6 +446,48 @@
                 errorMsg.style.display = "block";
             }
         }
+
+        // -------------------------------------------------------------
+        // FUNGSI TAMBAHAN: UI UX ENHANCEMENTS
+        // -------------------------------------------------------------
+
+        // 1. Fungsi Show/Hide Password
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePasswordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+                toggleIcon.style.color = 'var(--accent-cyan)';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+                toggleIcon.style.color = 'var(--text-muted)';
+            }
+        }
+
+        // 2. Event Listener: Tekan 'ENTER' untuk log masuk
+        document.addEventListener('DOMContentLoaded', function() {
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+
+            // Trigger click on 'Enter' key
+            function handleEnterKey(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Elak form submit secara default
+                    semakLogin();
+                }
+            }
+
+            usernameInput.addEventListener('keypress', handleEnterKey);
+            passwordInput.addEventListener('keypress', handleEnterKey);
+            
+            // Auto-focus username pada permulaan
+            usernameInput.focus();
+        });
     </script>
 </body>
 </html>

@@ -4,107 +4,1032 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Output Harian Operator</title>
+    <title>Output Harian Operator - MES</title>
+
+    <!-- Font Awesome for industrial icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; padding: 15px; color: #333; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-        .header h1 { margin: 0; color: #0056b3; font-size: 18px; }
-        .btn-back { color: #666; text-decoration: none; font-weight: bold; font-size: 20px; }
+        :root {
+            /* Theme Colors - Consistent with other MES pages */
+            --bg-dark: #070b14;
+            --bg-surface: #131b2c;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --bg-hover: rgba(30, 41, 59, 0.8);
+            
+            /* Typography */
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            /* Accent & Status */
+            --accent-cyan: #0ea5e9;
+            --accent-blue: #3b82f6;
+            --status-online: #10b981;
+            --status-warning: #f59e0b;
+            --status-error: #ef4444;
+            
+            /* Borders & Effects */
+            --border-light: rgba(148, 163, 184, 0.15);
+            --border-focus: rgba(14, 165, 233, 0.4);
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --glow-cyan: 0 0 15px rgba(14, 165, 233, 0.15);
+            
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-        .filter-box { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; gap: 10px; }
-        .filter-box input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
-        .filter-box button { padding: 10px 15px; background: #0056b3; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        .kad-container { display: flex; flex-direction: column; gap: 20px; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- BACKGROUND MESH --- */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 80% 10%, rgba(14, 165, 233, 0.08), transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.05), transparent 40%),
+                linear-gradient(var(--border-light) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            opacity: 0.5;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .layout-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            flex-grow: 1;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* --- HEADER --- */
+        .mes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .header-left {
+            display: flex;
+            gap: 1.2rem;
+            align-items: center;
+        }
+
+        .header-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .header-title h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .header-title p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+
+        .system-status-wrap {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .live-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .system-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--status-online);
+            letter-spacing: 0.5px;
+        }
+
+        .status-dot-pulse {
+            width: 6px;
+            height: 6px;
+            background-color: var(--status-online);
+            border-radius: 50%;
+            animation: pulse-online 2s infinite;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-secondary);
+        }
+
+        /* --- KPI SUMMARY --- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-focus);
+            box-shadow: var(--shadow-card);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
         
-        .process-card { background: white; width: 100%; border-collapse: collapse; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .process-card td { border: 1px solid #000; padding: 8px 12px; font-size: 15px; color: #000; }
-        .label-col { width: 35%; font-weight: bold; background-color: #fff; }
-        .value-col { width: 65%; font-family: monospace; font-size: 16px !important; color: #0056b3 !important; }
-        .title-badge { background: #333; color: white; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-bottom: 5px; font-size: 12px; font-weight: bold; }
+        .kpi-card:nth-child(1)::before { background-color: var(--accent-blue); }
+        .kpi-card:nth-child(2)::before { background-color: var(--status-online); }
+        .kpi-card:nth-child(3)::before { background-color: var(--accent-cyan); }
+        .kpi-card:nth-child(4)::before { background-color: var(--status-warning); }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .kpi-sub {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* --- TOOLBAR CONTROLS --- */
+        .controls-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toolbar-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 12px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .mes-input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            padding: 10px 10px 10px 35px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition-smooth);
+            min-width: 200px;
+        }
         
-        #loadingMsg { text-align: center; color: #0056b3; font-weight: bold; padding: 20px; }
+        input[type="date"].mes-input {
+            padding: 10px 15px 10px 35px; /* Adjust for date picker icon */
+        }
+        
+        /* Custom calendar icon color override for webkit */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.5;
+            cursor: pointer;
+        }
+
+        .mes-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+
+        .mes-select {
+            padding: 10px 35px 10px 15px;
+            appearance: none;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .select-container {
+            position: relative;
+        }
+
+        .select-container::after {
+            content: '\f0d7';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .btn-primary {
+            background: rgba(14, 165, 233, 0.15);
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: var(--accent-cyan);
+        }
+        
+        .btn-primary:hover {
+            background: rgba(14, 165, 233, 0.3);
+            border-color: var(--accent-cyan);
+            color: #fff;
+        }
+
+        /* --- DATA STATES --- */
+        .state-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border: 1px dashed var(--border-light);
+            border-radius: 12px;
+            text-align: center;
+            min-height: 300px;
+        }
+
+        .state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .state-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .state-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-spinner {
+            color: var(--accent-cyan);
+            animation: spin 1s linear infinite;
+        }
+
+        .error-icon { color: var(--status-error); }
+        .empty-icon { color: var(--text-muted); }
+
+        /* --- PRODUCTION CARDS GRID --- */
+        .records-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .prod-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: var(--transition-smooth);
+            animation: slideUp 0.4s ease-out forwards;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prod-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--border-focus);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* Card Header */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .record-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .record-status {
+            font-size: 0.7rem;
+            color: var(--status-online);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Card Main Process */
+        .card-process {
+            margin-bottom: 1.5rem;
+        }
+
+        .process-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        /* Card Details Grid */
+        .card-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Card Quantity Highlight */
+        .qty-highlight {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--status-online);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* Card Timing */
+        .card-timing {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.02);
+            margin-top: auto;
+        }
+
+        .time-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .time-item.end {
+            text-align: right;
+        }
+
+        .time-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .time-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* --- FOOTER --- */
+        .mes-footer {
+            text-align: center;
+            padding: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: auto;
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse-online {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .records-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .mes-header { flex-direction: column; gap: 1.5rem; }
+            .header-right { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
+            .controls-toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar-group { width: 100%; }
+            .input-wrapper, .mes-select { flex: 1; }
+            .records-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 480px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .header-left { flex-direction: column; align-items: flex-start; }
+            .toolbar-group { flex-direction: column; }
+            .input-wrapper, .select-container, .btn-action { width: 100%; }
+        }
+        
+        /* Utility for hiding elements */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>📊 Output Harian Operator</h1>
-        <a href="menu_manager.html" class="btn-back">🔙</a>
+    <div class="layout-container">
+        
+        <!-- HEADER -->
+        <header class="mes-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div class="header-title">
+                    <h1>Output Harian Operator</h1>
+                    <p>Daily Production Output Monitoring</p>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="system-status-wrap">
+                    <div class="system-status">
+                        <span class="status-dot-pulse"></span> SYSTEM ONLINE
+                    </div>
+                    <div class="live-clock" id="live-clock">--:--:--</div>
+                </div>
+                <a href="menu_manager.html" class="btn-action">
+                    <i class="fa-solid fa-arrow-left"></i> MANAGEMENT CENTER
+                </a>
+            </div>
+        </header>
+
+        <!-- KPI SUMMARY -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span>Total Rekod</span>
+                    <i class="fa-solid fa-list-ol"></i>
+                </div>
+                <div class="kpi-value" id="kpiTotalRekod">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span>Total Output</span>
+                    <i class="fa-solid fa-cubes"></i>
+                </div>
+                <div class="kpi-value" id="kpiTotalOutput">0 <span class="kpi-sub">PCS</span></div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span>Active Job Orders</span>
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <div class="kpi-value" id="kpiActiveJobs">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span>Operators Active</span>
+                    <i class="fa-solid fa-users-gear"></i>
+                </div>
+                <div class="kpi-value" id="kpiOperators">0</div>
+            </div>
+        </section>
+
+        <!-- CONTROLS TOOLBAR -->
+        <section class="controls-toolbar">
+            <div class="toolbar-group">
+                <div class="input-wrapper" style="flex: 2;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" class="mes-input" placeholder="Cari Operator, Process, Article, Job Order..." style="width: 100%;">
+                </div>
+                
+                <div class="select-container" style="flex: 1;">
+                    <select id="sortSelect" class="mes-input mes-select" style="width: 100%;">
+                        <option value="newest">Terbaru</option>
+                        <option value="oldest">Terlama</option>
+                        <option value="qty-high">Kuantiti Tertinggi</option>
+                        <option value="qty-low">Kuantiti Terendah</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="toolbar-group">
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-calendar"></i>
+                    <input type="date" id="dateFilter" class="mes-input">
+                </div>
+                
+                <button id="btnFilter" class="btn-action btn-primary">
+                    <i class="fa-solid fa-filter"></i> CARI
+                </button>
+                
+                <button id="btnRefresh" class="btn-action">
+                    <i class="fa-solid fa-rotate-right"></i> REFRESH
+                </button>
+            </div>
+        </section>
+
+        <!-- DATA VIEWS -->
+        <main id="mainContent">
+            
+            <!-- Loading State -->
+            <div id="stateLoading" class="state-container">
+                <i class="fa-solid fa-gear state-icon loading-spinner"></i>
+                <div class="state-title">LOADING PRODUCTION DATA...</div>
+                <div class="state-desc">Menyegerak data dari pangkalan pelayan MES.</div>
+            </div>
+
+            <!-- Error State -->
+            <div id="stateError" class="state-container hidden">
+                <i class="fa-solid fa-triangle-exclamation state-icon error-icon"></i>
+                <div class="state-title">UNABLE TO LOAD DATA</div>
+                <div class="state-desc" id="errorText">Gagal mendapatkan data daripada server.</div>
+                <button onclick="refreshData()" class="btn-action btn-primary">
+                    <i class="fa-solid fa-rotate-right"></i> CUBA LAGI
+                </button>
+            </div>
+
+            <!-- Empty State -->
+            <div id="stateEmpty" class="state-container hidden">
+                <i class="fa-solid fa-box-open state-icon empty-icon"></i>
+                <div class="state-title">NO PRODUCTION RECORDS</div>
+                <div class="state-desc">Tiada rekod output sepadan untuk dipaparkan.</div>
+                <button onclick="clearFilters()" class="btn-action">
+                    <i class="fa-solid fa-eraser"></i> CLEAR FILTERS
+                </button>
+            </div>
+
+            <!-- Data Grid -->
+            <div id="recordsGrid" class="records-grid hidden">
+                <!-- Cards will be injected here via JavaScript -->
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="mes-footer">
+            MES • FACTORY DIGITAL OPERATIONS<br>
+            Production Output Monitoring Dashboard
+        </footer>
+
     </div>
 
-    <div class="filter-box">
-        <input type="date" id="tarikhFilter">
-        <button onclick="alert('Fungsi filter akan datang!')">🔍 Cari</button>
-    </div>
-
-    <div id="loadingMsg">⏳ Sedang memuat turun data produksi...</div>
-    
-    <!-- RUANGAN KOTAK DATA (Akan diisi automatik oleh JavaScript) -->
-    <div class="kad-container" id="dataContainer">
-    </div>
-
+    <!-- JAVASCRIPT -->
     <script>
-        // MASUKKAN URL APPS SCRIPT KAU KAT SINI
+        // --- CONSTANTS ---
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
+        
+        // --- GLOBAL VARIABLES ---
+        let rawData = []; // Menyimpan data asal dari API
+        let filteredData = []; // Menyimpan data yang telah di-filter/sort
 
+        // --- DOM ELEMENTS ---
+        const elStateLoading = document.getElementById('stateLoading');
+        const elStateError = document.getElementById('stateError');
+        const elStateEmpty = document.getElementById('stateEmpty');
+        const elRecordsGrid = document.getElementById('recordsGrid');
+        const elErrorText = document.getElementById('errorText');
+        
+        const inSearch = document.getElementById('searchInput');
+        const inSort = document.getElementById('sortSelect');
+        const inDate = document.getElementById('dateFilter');
+        
+        const btnFilter = document.getElementById('btnFilter');
+        const btnRefresh = document.getElementById('btnRefresh');
+
+        // --- INITIALIZATION ---
         window.onload = function() {
-            // Panggil action=getOutputHarian
-            fetch(WEB_APP_URL + "?action=getOutputHarian")
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("loadingMsg").style.display = "none";
-                let container = document.getElementById("dataContainer");
-                container.innerHTML = ""; // Kosongkan ruangan sebelum masukkan data
+            initClock();
+            loadData();
+            setupEventListeners();
+        };
+
+        // --- CLOCK CONTROLLER ---
+        function initClock() {
+            function updateClock() {
+                const now = new Date();
+                const dateOptions = { day: '2-digit', month: 'short', year: 'numeric' };
+                const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
                 
-                let rekodNo = 1;
+                const dateStr = now.toLocaleDateString('en-GB', dateOptions).toUpperCase();
+                const timeStr = now.toLocaleTimeString('en-US', timeOptions);
                 
-                data.forEach(item => {
-                    let htmlKad = `
-                        <div>
-                            <div class="title-badge">Rekod #${rekodNo}</div>
-                            <table class="process-card">
-                                <tr>
-                                    <td class="label-col">Process</td>
-                                    <td class="value-col">${item.Proses}</td>
-                                </tr>
-                                <tr>
-                                    <td class="label-col">Id Opr</td>
-                                    <td class="value-col">${item.Id_Opr}</td>
-                                </tr>
-                                <tr>
-                                    <td class="label-col">Artikel No:</td>
-                                    <td class="value-col">${item.No_Artikel}</td>
-                                </tr>
-                                <tr>
-                                    <td class="label-col">Job Order:</td>
-                                    <td class="value-col">${item.Job_Order}</td>
-                                </tr>
-                                <tr>
-                                    <td class="label-col">Kuantiti</td>
-                                    <td class="value-col">${item.Kuantiti} Unit</td>
-                                </tr>
-                                <tr>
-                                    <td class="label-col">Time Start:</td>
-                                    <td class="value-col">${item.Time_Start}</td>
-                                </tr>
-                                <tr>
-                                    <td class="label-col">Time End:</td>
-                                    <td class="value-col">${item.Time_End}</td>
-                                </tr>
-                            </table>
-                        </div>
-                    `;
-                    // Tambah kad ke dalam container
-                    container.innerHTML += htmlKad;
-                    rekodNo++;
+                document.getElementById('live-clock').textContent = `${dateStr} | ${timeStr}`;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+        }
+
+        // --- EVENT LISTENERS ---
+        function setupEventListeners() {
+            // Live Search
+            inSearch.addEventListener('input', applyFilters);
+            // Sorting change
+            inSort.addEventListener('change', applyFilters);
+            // Date Filter Button
+            btnFilter.addEventListener('click', applyFilters);
+            // Refresh Button
+            btnRefresh.addEventListener('click', refreshData);
+        }
+
+        // --- DATA FETCHING ---
+        async function loadData() {
+            showState('loading');
+            
+            try {
+                const response = await fetch(WEB_APP_URL + "?action=getOutputHarian");
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Store data
+                rawData = data || [];
+                
+                // Optional: Add index to act as original ID if not present
+                rawData.forEach((item, index) => {
+                    item._originalIndex = index + 1;
                 });
-            })
-            .catch(error => {
-                document.getElementById("loadingMsg").innerText = "❌ Gagal memuat turun data.";
-                console.error(error);
+                
+                applyFilters(); // Apply default filters (which shows all) & render
+                
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                elErrorText.textContent = `Gagal menyambung ke pelayan: ${error.message}`;
+                showState('error');
+            }
+        }
+
+        function refreshData() {
+            // Reset input UI but keep state loading
+            rawData = [];
+            loadData();
+        }
+
+        function clearFilters() {
+            inSearch.value = "";
+            inDate.value = "";
+            inSort.value = "newest";
+            applyFilters();
+        }
+
+        // --- FILTERING & SORTING LOGIC ---
+        function applyFilters() {
+            if (rawData.length === 0) return; // Prevent filtering if no data yet
+
+            let result = [...rawData];
+            const searchTerm = inSearch.value.toLowerCase().trim();
+            const sortVal = inSort.value;
+            const dateVal = inDate.value; // format: YYYY-MM-DD
+
+            // 1. Apply Text Search
+            if (searchTerm !== "") {
+                result = result.filter(item => {
+                    const processMatch = String(item.Proses || "").toLowerCase().includes(searchTerm);
+                    const oprMatch = String(item.Id_Opr || "").toLowerCase().includes(searchTerm);
+                    const artMatch = String(item.No_Artikel || "").toLowerCase().includes(searchTerm);
+                    const jobMatch = String(item.Job_Order || "").toLowerCase().includes(searchTerm);
+                    
+                    return processMatch || oprMatch || artMatch || jobMatch;
+                });
+            }
+
+            // 2. Apply Date Filter (Note: This depends on API having date info. Usually Time_Start contains date)
+            if (dateVal !== "") {
+                result = result.filter(item => {
+                    // Try to match the date string within Time_Start or similar fields
+                    // This is a naive match assuming date format in API might contain the selected date.
+                    // If API date format is DD/MM/YYYY, we might need conversion.
+                    // Assuming basic string inclusion for now.
+                    
+                    const timeStartStr = String(item.Time_Start || "");
+                    const timeEndStr = String(item.Time_End || "");
+                    
+                    // Simple check if the string contains parts of the date
+                    // Proper implementation requires knowing exact API date format
+                    // For safety, if no match is possible, we just pass the filter to not break UI
+                    return timeStartStr.includes(dateVal) || 
+                           timeEndStr.includes(dateVal) || 
+                           timeStartStr === ""; // Keep if empty to avoid filtering out invalid dates strictly
+                });
+                
+                // Note: If API doesn't return dates that match input type="date" format (YYYY-MM-DD),
+                // this filter might return empty. In a real scenario, map dateVal to API format.
+            }
+
+            // 3. Apply Sorting
+            result.sort((a, b) => {
+                switch(sortVal) {
+                    case 'newest':
+                        // Assuming newer records are added last (higher original index)
+                        return b._originalIndex - a._originalIndex;
+                    case 'oldest':
+                        return a._originalIndex - b._originalIndex;
+                    case 'qty-high':
+                        return (parseFloat(b.Kuantiti) || 0) - (parseFloat(a.Kuantiti) || 0);
+                    case 'qty-low':
+                        return (parseFloat(a.Kuantiti) || 0) - (parseFloat(b.Kuantiti) || 0);
+                    default:
+                        return 0;
+                }
             });
+
+            filteredData = result;
+            
+            updateKPIs();
+            renderData();
+        }
+
+        // --- RENDERING UI ---
+        function renderData() {
+            if (filteredData.length === 0) {
+                showState('empty');
+                return;
+            }
+
+            elRecordsGrid.innerHTML = "";
+            
+            filteredData.forEach((item, index) => {
+                // Safely escape values to prevent HTML injection
+                const sIndex = item._originalIndex;
+                const sProcess = escapeHtml(item.Proses || "-");
+                const sOpr = escapeHtml(item.Id_Opr || "-");
+                const sArt = escapeHtml(item.No_Artikel || "-");
+                const sJob = escapeHtml(item.Job_Order || "-");
+                const sQty = escapeHtml(item.Kuantiti || "0");
+                const sTimeStart = escapeHtml(item.Time_Start || "--:--");
+                const sTimeEnd = escapeHtml(item.Time_End || "--:--");
+
+                // Determine a slight animation delay for stagger effect
+                const animDelay = (index % 10) * 0.05;
+
+                const cardHTML = `
+                    <div class="prod-card" style="animation-delay: ${animDelay}s">
+                        <div class="card-header">
+                            <span class="record-id">REKOD #${sIndex.toString().padStart(3, '0')}</span>
+                            <span class="record-status"><span class="status-dot-pulse"></span> PRODUCTION</span>
+                        </div>
+                        
+                        <div class="card-process">
+                            <div class="detail-label">Process</div>
+                            <div class="process-badge"><i class="fa-solid fa-gears"></i> ${sProcess}</div>
+                        </div>
+
+                        <div class="card-details">
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="fa-solid fa-user"></i> Operator ID</span>
+                                <span class="detail-value">${sOpr}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="fa-solid fa-box"></i> Article No.</span>
+                                <span class="detail-value">${sArt}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="fa-solid fa-clipboard-list"></i> Job Order</span>
+                                <span class="detail-value">${sJob}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="fa-solid fa-cubes"></i> Quantity</span>
+                                <span class="detail-value qty-highlight">${sQty} <span style="font-size:0.6em">PCS</span></span>
+                            </div>
+                        </div>
+
+                        <div class="card-timing">
+                            <div class="time-item">
+                                <span class="time-label"><i class="fa-solid fa-play"></i> Time Start</span>
+                                <span class="time-value">${sTimeStart}</span>
+                            </div>
+                            <div class="time-item end">
+                                <span class="time-label">Time End <i class="fa-solid fa-stop"></i></span>
+                                <span class="time-value">${sTimeEnd}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                elRecordsGrid.insertAdjacentHTML('beforeend', cardHTML);
+            });
+
+            showState('data');
+        }
+
+        function updateKPIs() {
+            // Calculate KPIs based on filteredData
+            const totalRecords = filteredData.length;
+            
+            let totalQty = 0;
+            const uniqueJobs = new Set();
+            const uniqueOperators = new Set();
+
+            filteredData.forEach(item => {
+                totalQty += parseFloat(item.Kuantiti) || 0;
+                
+                if(item.Job_Order) uniqueJobs.add(item.Job_Order);
+                if(item.Id_Opr) uniqueOperators.add(item.Id_Opr);
+            });
+
+            // Format numbers nicely
+            document.getElementById('kpiTotalRekod').textContent = totalRecords;
+            document.getElementById('kpiTotalOutput').innerHTML = `${totalQty.toLocaleString()} <span class="kpi-sub">PCS</span>`;
+            document.getElementById('kpiActiveJobs').textContent = uniqueJobs.size;
+            document.getElementById('kpiOperators').textContent = uniqueOperators.size;
+        }
+
+        // --- UTILITIES ---
+        function showState(state) {
+            // Hide all first
+            elStateLoading.classList.add('hidden');
+            elStateError.classList.add('hidden');
+            elStateEmpty.classList.add('hidden');
+            elRecordsGrid.classList.add('hidden');
+
+            // Show requested
+            if (state === 'loading') elStateLoading.classList.remove('hidden');
+            else if (state === 'error') elStateError.classList.remove('hidden');
+            else if (state === 'empty') elStateEmpty.classList.remove('hidden');
+            else if (state === 'data') elRecordsGrid.classList.remove('hidden');
+        }
+
+        function escapeHtml(unsafe) {
+            return String(unsafe ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
     </script>
 </body>

@@ -4,389 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Pengurusan - Sistem MES</title>
-    <!-- Gunakan Font Awesome untuk icon moden -->
+    <!-- Font Awesome for industrial-grade icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for better typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            /* Warna Tema Utama */
-            --bg-base: #0b1120; /* Dark Navy/Charcoal */
-            --bg-surface: rgba(30, 41, 59, 0.6); /* Glassmorphism background */
-            --bg-card: rgba(15, 23, 42, 0.7);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: rgba(148, 163, 184, 0.15);
+            /* Enterprise Color Palette */
+            --mes-bg-dark: #090e17;
+            --mes-surface-main: #131b2c;
+            --mes-surface-card: #172136;
+            --mes-surface-hover: #1e2a45;
             
-            /* Warna Aksen */
-            --accent-cyan: #06b6d4;
-            --accent-blue: #3b82f6;
-            --accent-amber: #f59e0b;
-            --accent-red: #ef4444;
+            /* Typography Colors */
+            --mes-text-primary: #f1f5f9;
+            --mes-text-secondary: #94a3b8;
+            --mes-text-muted: #64748b;
             
-            /* Kesan Glow */
-            --glow-cyan: rgba(6, 182, 212, 0.3);
-            --glow-blue: rgba(59, 130, 246, 0.3);
-            --glow-amber: rgba(245, 158, 11, 0.3);
+            /* Status & Accent Colors */
+            --mes-accent-primary: #0ea5e9; /* Light Blue */
+            --mes-status-online: #10b981; /* Emerald Green */
+            --mes-status-warning: #f59e0b; /* Amber */
+            
+            /* Border & Effects */
+            --mes-border-light: rgba(148, 163, 184, 0.1);
+            --mes-border-focus: rgba(14, 165, 233, 0.3);
+            --mes-shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.2);
+            --mes-shadow-glow: 0 0 15px rgba(14, 165, 233, 0.15);
+            
+            /* Transitions */
+            --transition-smooth: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-base);
-            /* Background grid dan soft glow untuk rasa 'Industrial Tech' */
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 60%),
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
-            background-attachment: fixed;
-            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--mes-bg-dark);
+            color: var(--mes-text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1100px;
+        /* Subtle grid background for industrial feel */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--mes-border-light) 1px, transparent 1px),
+                linear-gradient(90deg, var(--mes-border-light) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.3;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Soft central glow */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80vw;
+            height: 50vh;
+            background: radial-gradient(ellipse at top, rgba(14, 165, 233, 0.05), transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .layout-container {
+            max-width: 1200px;
             margin: 0 auto;
             width: 100%;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
+            gap: 2rem;
         }
 
-        /* Keyframe Animations */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4); }
-            70% { box-shadow: 0 0 0 6px rgba(6, 182, 212, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
-        }
-
-        /* HEADER */
-        .dashboard-header {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem 2rem;
+        /* --- HEADER SECTION --- */
+        .mes-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            margin-bottom: 1.5rem;
-            animation: fadeInDown 0.6s ease-out;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            align-items: flex-end;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--mes-border-light);
+            animation: fadeDown 0.5s ease-out;
         }
 
-        .header-title {
+        .header-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .brand-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--mes-accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+        }
+
+        .brand-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 0.75rem;
         }
 
-        .header-icon {
-            font-size: 2rem;
-            color: var(--accent-blue);
+        .brand-title i {
+            color: var(--mes-text-secondary);
+            font-size: 1.5rem;
         }
 
-        .header-text h1 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
+        .header-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
         }
 
-        .header-text p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .header-status {
-            text-align: right;
-        }
-
-        .status-badge {
-            display: inline-flex;
+        .system-status {
+            display: flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.25);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--accent-cyan);
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px; /* More industrial square look */
         }
 
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent-cyan);
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--mes-status-online);
             border-radius: 50%;
-            animation: pulse-glow 2s infinite;
+            box-shadow: 0 0 8px var(--mes-status-online);
         }
 
-        .live-clock {
-            font-family: 'Consolas', monospace;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+        .status-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--mes-status-online);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
         }
 
-        /* MINI STATS INFO */
-        .stats-container {
+        .system-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--mes-text-secondary);
+        }
+
+        /* --- MODULES GRID --- */
+        .modules-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
-            margin-bottom: 2.5rem;
-            animation: fadeInDown 0.7s ease-out;
+            animation: fadeUp 0.6s ease-out 0.1s backwards;
         }
 
-        .stat-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-
-        .stat-icon {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            background: rgba(255,255,255,0.05);
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .stat-details h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .stat-details p {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 2px;
-        }
-
-        /* MENU GRID MODULES */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        /* MODULE CARDS */
         .module-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2rem 1.5rem;
+            background-color: var(--mes-surface-card);
+            border: 1px solid var(--mes-border-light);
+            border-radius: 8px; /* Professional slight roundness */
+            padding: 2rem;
             text-decoration: none;
-            color: var(--text-primary);
+            color: var(--mes-text-primary);
             display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-
-        /* Border top berlainan warna untuk membezakan modul */
-        .module-card:nth-child(1) { animation-delay: 0.1s; border-top: 3px solid var(--accent-cyan); }
-        .module-card:nth-child(2) { animation-delay: 0.2s; border-top: 3px solid var(--accent-blue); }
-        .module-card:nth-child(3) { animation-delay: 0.3s; border-top: 3px solid var(--accent-amber); }
-
-        /* Kesan Glow apabila tetikus digerakkan (Mouse tracking glow) */
-        .module-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.06), transparent 40%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        /* Hover Animation pada kad */
-        .module-card:hover {
-            transform: translateY(-8px);
-            background: rgba(30, 41, 59, 0.9);
-        }
-
-        .module-card:nth-child(1):hover { box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 20px var(--glow-cyan); border-color: var(--accent-cyan); }
-        .module-card:nth-child(2):hover { box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 20px var(--glow-blue); border-color: var(--accent-blue); }
-        .module-card:nth-child(3):hover { box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 20px var(--glow-amber); border-color: var(--accent-amber); }
-
-        .module-card:hover::after {
-            opacity: 1;
-        }
-
-        .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s ease;
-        }
-        .module-card:nth-child(1) .card-icon { color: var(--accent-cyan); }
-        .module-card:nth-child(2) .card-icon { color: var(--accent-blue); }
-        .module-card:nth-child(3) .card-icon { color: var(--accent-amber); }
-
-        .module-card:hover .card-icon {
-            transform: scale(1.1);
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-        }
-
-        .card-desc {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 2rem;
-            flex-grow: 1;
-        }
-
-        .card-action {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.2rem;
-            transition: color 0.3s ease;
-        }
-
-        .module-card:nth-child(1) .card-action { color: var(--accent-cyan); }
-        .module-card:nth-child(2) .card-action { color: var(--accent-blue); }
-        .module-card:nth-child(3) .card-action { color: var(--accent-amber); }
-
-        .card-action i {
-            transition: transform 0.3s ease;
-        }
-
-        .module-card:hover .card-action i {
-            transform: translateX(6px);
-        }
-
-        /* LOG KELUAR */
-        .logout-wrapper {
-            margin-top: auto;
-            text-align: right;
-            animation: fadeInUp 0.8s ease-out forwards;
-            opacity: 0;
-        }
-
-        .btn-logout {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(239, 68, 68, 0.08);
-            color: var(--accent-red);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-logout:hover {
-            background: var(--accent-red);
-            color: #fff;
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
-            transform: translateY(-2px);
-        }
-
-        /* RESPONSIVE MEDIA QUERIES */
-        @media (max-width: 900px) {
-            .dashboard-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
-            .header-status {
-                text-align: center;
-            }
-            .stats-container {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-            .logout-wrapper {
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .menu-grid {
-                grid-template-columns: 1fr;
-            }
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        
-        <!-- Dashboard Header -->
-        <header class="dashboard-header">
-            <div class="header-title">
-                <i class="fa-solid fa-industry header-icon"></i>
-                <div class="header-text">
-                    <h1>MES Management Center</h1>
-                    <p>Ruang Pengurusan • Central Control</p>
-                </div>
-            </div>
-            <div class="header-status">
-                <div class="status-badge">
-                    <span class="status-indicator"></span>
-                    SYSTEM ONLINE
-                </div>
-                <div class="live-clock" id="live-clock">
-                    --:--:--
-                </div>
-            </div>
-        </header>

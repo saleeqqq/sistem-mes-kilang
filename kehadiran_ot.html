@@ -3,85 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kehadiran & Jam OT</title>
+    <title>Kehadiran & Jam OT - Sistem MES</title>
+    
+    <!-- Font Awesome for industrial-grade icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for premium typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-        .header h1 { margin: 0; color: #ffaa00; font-size: 20px; }
-        .btn-back { color: #666; text-decoration: none; font-weight: bold; }
+        :root {
+            /* Enterprise Theme Colors */
+            --mes-bg-dark: #070b14;
+            --mes-surface-main: #131b2c;
+            --mes-surface-card: rgba(15, 23, 42, 0.6);
+            --mes-surface-hover: rgba(30, 41, 59, 0.8);
+            
+            /* Typography */
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            /* Accents & Status */
+            --accent-cyan: #0ea5e9;
+            --status-online: #10b981; /* Green - Hadir */
+            --status-warning: #f59e0b; /* Amber - OT / MC */
+            --status-error: #ef4444; /* Red - Cuti/Absent */
+            
+            /* Borders & Effects */
+            --border-light: rgba(148, 163, 184, 0.15);
+            --border-focus: rgba(14, 165, 233, 0.4);
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --glow-cyan: 0 0 15px rgba(14, 165, 233, 0.15);
+            
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-        /* Kad Ringkasan */
-        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .sum-card { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #ffaa00; }
-        .sum-title { font-size: 13px; color: #666; font-weight: bold; text-transform: uppercase; }
-        .sum-value { font-size: 24px; font-weight: bold; color: #333; margin-top: 5px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
 
-        /* Jadual Data */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
-        th { background: #333; color: white; }
-        
-        .status-hadir { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
-        .status-mc { background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
-    </style>
-</head>
-<body>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--mes-bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-    <div class="header">
-        <h1>⏱️ Rekod Kehadiran & OT</h1>
-        <a href="menu_manager.html" class="btn-back">🔙 Kembali</a>
-    </div>
+        /* --- BACKGROUND EFFECTS --- */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.05), transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.03), transparent 50%),
+                linear-gradient(var(--border-light) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            opacity: 0.5;
+            z-index: -2;
+            pointer-events: none;
+        }
 
-    <div class="summary-grid">
-        <div class="sum-card">
-            <div class="sum-title">Total Kehadiran Hari Ini</div>
-            <div class="sum-value">12 / 15 Orang</div>
-        </div>
-        <div class="sum-card" style="border-left-color: #ff3366;">
-            <div class="sum-title">Anggaran Total OT (Jam)</div>
-            <div class="sum-value">24 Jam</div>
-        </div>
-    </div>
+        .layout-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            flex-grow: 1;
+            animation: fadeIn 0.6s ease-out;
+        }
 
-    <table style="min-width: 600px; display: block; overflow-x: auto; white-space: nowrap;">
-        <thead>
-            <tr>
-                <th>Operator</th>
-                <th>Status</th>
-                <th>Time In</th>
-                <th>Time Out</th>
-                <th>Jam Bekerja</th>
-                <th>Jam OT</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <!-- Data Dummy (Prototaip) -->
-            <tr>
-                <td><strong>OP101 (Ali)</strong></td>
-                <td><span class="status-hadir">Hadir</span></td>
-                <td>08:00 AM</td>
-                <td>07:00 PM</td>
-                <td>8 Jam</td>
-                <td><strong style="color:#ff3366;">2 Jam</strong></td>
-            </tr>
-            <tr>
-                <td><strong>OP102 (Muthu)</strong></td>
-                <td><span class="status-hadir">Hadir</span></td>
-                <td>08:15 AM</td>
-                <td>09:00 PM</td>
-                <td>8 Jam</td>
-                <td><strong style="color:#ff3366;">4 Jam</strong></td>
-            </tr>
-            <tr>
-                <td><strong>OP103 (Chong)</strong></td>
-                <td><span class="status-mc">MC / Cuti</span></td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
-        </tbody>
-    </table>
+        /* --- HEADER SECTION --- */
+        .mes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 1.5rem;
+            background: var(--mes-surface-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+        }
 
-</body>
-</html>
+        .header-left {
+            display: flex;
+            gap: 1.2rem;
+            align-items: center;
+        }
+
+        .header-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .header-title h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .header-title p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+
+        .system-status-wrap {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .live-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .system-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--status-online);
+            letter-spacing: 0.5px;
+        }
+
+        .status-dot-pulse {
+            width: 6px;
+            height: 6px;
+            background-color: var(--status-online);
+            border-radius: 50%;
+            animation: pulse-online 2s infinite;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-secondary);
+            transform: translateX(-3px);
+        }
+
+        /* --- KPI SUMMARY CARDS --- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .kpi-card {
+            background: var(--mes-surface-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-focus);
+            box-shadow: var(--shadow-card);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .kpi-total::before { background-color: var(--accent-cyan); }
+        .kpi-hadir::before { background-color: var(--status-online); }
+        .kpi-mc::before { background-color: var(--status-error); }
+        .kpi-ot::before { background-color: var(--status-warning); }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .kpi-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--status-online);
+            border-radius: 10px;
+            width: 80%; /* Hardcoded dummy percentage */
+            box-shadow: 0 0 10px var(--status-online);
+            animation: fillProgress 1.5s ease-out;
+        }
+
+        /* --- CONTROLS / FILTERS --- */
+        .controls-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: var(--mes-surface-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            flex-grow: 1;
+        }
+
+        .input-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-width: 250px;
+        }
+
+        .input-box i {
+            position: absolute;
+            left: 12px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .mes-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            padding: 10px 10px 10px 35px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .mes-select {
+            padding: 10px 35px 10px 15px; /* Adjust padding for standard select */
+            appearance: none;
+            cursor: pointer;
+            min-width: 160px;
+        }
+
+        .mes-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '\f0d7';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* --- DATA TABLE --- */
+        .table-container {
+            background: var(--mes-surface-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: var(--shadow-card);
+        }
+
+        .mes-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 900px;
+        }
+
+        .mes-table th {
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            white-space: nowrap;
+        }
+
+        .mes-table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .mes-table tbody tr {
+            transition: var(--transition-smooth);
+        }
+
+        .mes-table tbody tr:hover {
+            background: var(--mes-surface-hover);
+        }
+
+        /* Operator Cell Style */
+        .op-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .op-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .op-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
