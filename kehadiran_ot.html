@@ -5,34 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kehadiran & Jam OT - Sistem MES</title>
     
-    <!-- Font Awesome for industrial-grade icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts for premium typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
+    <!-- External Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <style>
+        /* CSS VARIABLES */
         :root {
-            /* Enterprise Theme Colors */
-            --mes-bg-dark: #070b14;
-            --mes-surface-main: #131b2c;
-            --mes-surface-card: rgba(15, 23, 42, 0.6);
-            --mes-surface-hover: rgba(30, 41, 59, 0.8);
+            --bg-main: #070b14;
+            --bg-secondary: #0d1b2a;
+            --surface: rgba(15, 23, 42, 0.7);
+            --surface-light: rgba(30, 41, 59, 0.8);
             
-            /* Typography */
+            --border-light: rgba(148, 163, 184, 0.15);
+            --border-focus: rgba(14, 165, 233, 0.4);
+            
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
             
-            /* Accents & Status */
-            --accent-cyan: #0ea5e9;
-            --status-online: #10b981; /* Green - Hadir */
-            --status-warning: #f59e0b; /* Amber - OT / MC */
-            --status-error: #ef4444; /* Red - Cuti/Absent */
+            --cyan: #0ea5e9;
+            --blue: #3b82f6;
+            --teal: #14b8a6;
             
-            /* Borders & Effects */
-            --border-light: rgba(148, 163, 184, 0.15);
-            --border-focus: rgba(14, 165, 233, 0.4);
-            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --success: #10b981; /* Green for Hadir */
+            --warning: #f59e0b; /* Amber for OT/MC */
+            --danger: #ef4444;  /* Red */
+            
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.3);
             --glow-cyan: 0 0 15px rgba(14, 165, 233, 0.15);
             
             --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -42,12 +42,11 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-font-smoothing: antialiased;
         }
 
         body {
             font-family: 'Inter', system-ui, sans-serif;
-            background-color: var(--mes-bg-dark);
+            background-color: var(--bg-main);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
@@ -55,9 +54,10 @@
             padding: 1.5rem;
             position: relative;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* --- BACKGROUND EFFECTS --- */
+        /* BACKGROUND STYLING */
         body::before {
             content: '';
             position: fixed;
@@ -66,8 +66,8 @@
             width: 100%;
             height: 100%;
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.05), transparent 50%),
-                radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.03), transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(245, 158, 11, 0.03) 0%, transparent 50%),
                 linear-gradient(var(--border-light) 1px, transparent 1px),
                 linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
             background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
@@ -84,20 +84,21 @@
             flex-direction: column;
             gap: 1.5rem;
             flex-grow: 1;
-            animation: fadeIn 0.6s ease-out;
+            animation: fadeInDown 0.6s ease-out both;
         }
 
-        /* --- HEADER SECTION --- */
+        /* HEADER */
         .mes-header {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding: 1.5rem;
-            background: var(--mes-surface-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            box-shadow: var(--shadow-card);
+            box-shadow: var(--shadow-soft);
         }
 
         .header-left {
@@ -107,31 +108,33 @@
         }
 
         .header-icon {
+            font-size: 1.8rem;
+            color: var(--cyan);
+            background: rgba(14, 165, 233, 0.1);
             width: 50px;
             height: 50px;
-            background: rgba(14, 165, 233, 0.1);
-            border: 1px solid rgba(14, 165, 233, 0.2);
-            border-radius: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
-            color: var(--accent-cyan);
+            border-radius: 10px;
+            border: 1px solid rgba(14, 165, 233, 0.2);
             box-shadow: var(--glow-cyan);
         }
 
         .header-title h1 {
             font-size: 1.4rem;
             font-weight: 600;
+            letter-spacing: 0.5px;
             margin-bottom: 0.2rem;
         }
 
         .header-title p {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
-            color: var(--accent-cyan);
+            color: var(--cyan);
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-weight: 500;
         }
 
         .header-right {
@@ -147,32 +150,33 @@
             gap: 1rem;
         }
 
-        .live-clock {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .system-status {
+        .sys-status {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid rgba(16, 185, 129, 0.2);
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--status-online);
+            font-size: 0.7rem;
+            color: var(--success);
+            font-weight: 600;
             letter-spacing: 0.5px;
         }
 
-        .status-dot-pulse {
+        .status-dot {
             width: 6px;
             height: 6px;
-            background-color: var(--status-online);
+            background-color: var(--success);
             border-radius: 50%;
             animation: pulse-online 2s infinite;
+        }
+
+        .sys-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
         .btn-back {
@@ -196,34 +200,35 @@
             transform: translateX(-3px);
         }
 
-        /* --- KPI SUMMARY CARDS --- */
-        .kpi-grid {
+        /* KPI & SUMMARY GRID */
+        .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .kpi-main-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 1.5rem;
         }
 
-        .kpi-card {
-            background: var(--mes-surface-card);
+        .sum-card {
+            background: var(--surface);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-light);
             border-radius: 12px;
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 0.8rem;
-            transition: var(--transition-smooth);
             position: relative;
             overflow: hidden;
+            box-shadow: var(--shadow-soft);
         }
 
-        .kpi-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--border-focus);
-            box-shadow: var(--shadow-card);
-        }
-
-        .kpi-card::before {
+        .sum-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -232,85 +237,150 @@
             height: 100%;
         }
 
-        .kpi-total::before { background-color: var(--accent-cyan); }
-        .kpi-hadir::before { background-color: var(--status-online); }
-        .kpi-mc::before { background-color: var(--status-error); }
-        .kpi-ot::before { background-color: var(--status-warning); }
+        .card-hadir::before { background-color: var(--success); }
+        .card-ot::before { background-color: var(--warning); }
 
-        .kpi-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--text-secondary);
+        .sum-title {
             font-size: 0.8rem;
+            color: var(--text-secondary);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .kpi-value {
+        .sum-title i {
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+
+        .sum-value {
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
             display: flex;
             align-items: baseline;
             gap: 0.5rem;
         }
-
-        .kpi-sub {
-            font-size: 0.85rem;
+        
+        .sum-sub {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
             color: var(--text-muted);
             font-weight: 500;
         }
 
-        /* Progress Bar */
-        .progress-container {
+        /* PROGRESS BAR */
+        .progress-section {
+            margin-top: 1rem;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .progress-bar-bg {
             width: 100%;
             height: 6px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            margin-top: 0.5rem;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            background: var(--status-online);
+            background: var(--success);
             border-radius: 10px;
-            width: 80%; /* Hardcoded dummy percentage */
-            box-shadow: 0 0 10px var(--status-online);
-            animation: fillProgress 1.5s ease-out;
+            box-shadow: 0 0 10px var(--success);
+            animation: fillProgress 1.5s ease-out both;
         }
 
-        /* --- CONTROLS / FILTERS --- */
-        .controls-bar {
-            display: flex;
-            flex-wrap: wrap;
+        /* MINI KPI */
+        .mini-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
-            background: var(--mes-surface-card);
+        }
+
+        .mini-kpi {
+            background: var(--surface);
             backdrop-filter: blur(12px);
             border: 1px solid var(--border-light);
             border-radius: 12px;
-            padding: 1rem 1.5rem;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .filter-group {
+            padding: 1rem;
             display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            flex-grow: 1;
+            flex-direction: column;
+            gap: 0.3rem;
+            box-shadow: var(--shadow-soft);
         }
 
-        .input-box {
+        .mini-kpi-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .mini-kpi-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* FILTER TOOLBAR */
+        .filter-toolbar {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .toolbar-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            flex-grow: 1;
+            justify-content: flex-end;
+        }
+
+        .input-group {
             position: relative;
             display: flex;
             align-items: center;
-            min-width: 250px;
+            min-width: 220px;
         }
 
-        .input-box i {
+        .input-group i {
             position: absolute;
             left: 12px;
             color: var(--text-muted);
@@ -322,7 +392,7 @@
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--border-light);
             color: var(--text-primary);
-            padding: 10px 10px 10px 35px;
+            padding: 10px 15px 10px 35px;
             border-radius: 6px;
             font-size: 0.9rem;
             outline: none;
@@ -330,14 +400,14 @@
         }
 
         .mes-select {
-            padding: 10px 35px 10px 15px; /* Adjust padding for standard select */
+            padding: 10px 35px 10px 15px;
             appearance: none;
             cursor: pointer;
             min-width: 160px;
         }
 
         .mes-input:focus {
-            border-color: var(--accent-cyan);
+            border-color: var(--cyan);
             box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
         }
 
@@ -346,9 +416,8 @@
         }
 
         .select-wrapper::after {
-            content: '\f0d7';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
+            content: '▼';
+            font-size: 0.7rem;
             position: absolute;
             right: 12px;
             top: 50%;
@@ -356,22 +425,31 @@
             color: var(--text-muted);
             pointer-events: none;
         }
+        
+        input[type="date"].mes-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.5;
+            cursor: pointer;
+        }
 
-        /* --- DATA TABLE --- */
-        .table-container {
-            background: var(--mes-surface-card);
+        /* DATA TABLE */
+        .table-wrapper {
+            background: var(--surface);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-light);
             border-radius: 12px;
             overflow-x: auto;
-            box-shadow: var(--shadow-card);
+            box-shadow: var(--shadow-soft);
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+            width: 100%;
         }
 
         .mes-table {
             width: 100%;
+            min-width: 800px; /* Forces scroll on small devices, prevents page overflow */
             border-collapse: collapse;
             text-align: left;
-            min-width: 900px;
         }
 
         .mes-table th {
@@ -380,7 +458,7 @@
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             padding: 1rem 1.5rem;
             border-bottom: 1px solid var(--border-light);
             white-space: nowrap;
@@ -391,6 +469,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-size: 0.9rem;
             vertical-align: middle;
+            color: var(--text-primary);
         }
 
         .mes-table tbody tr {
@@ -398,28 +477,455 @@
         }
 
         .mes-table tbody tr:hover {
-            background: var(--mes-surface-hover);
+            background: var(--surface-light);
+        }
+        
+        /* Fallback for no-js filtering */
+        .mes-table tbody tr.hidden {
+            display: none;
         }
 
-        /* Operator Cell Style */
+        /* Operator Cell */
         .op-cell {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
         }
 
-        .op-id {
+        .operator-id {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
         }
 
-        .op-name {
+        .operator-name {
             font-weight: 600;
             color: var(--text-primary);
         }
 
         /* Status Badges */
-        .badge {
+        .status-badge {
             display: inline-flex;
             align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .status-hadir {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .status-hadir .badge-dot { background-color: var(--success); box-shadow: 0 0 5px var(--success); }
+
+        .status-mc {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        .status-mc .badge-dot { background-color: var(--warning); box-shadow: 0 0 5px var(--warning); }
+
+        /* Timing & OT Cells */
+        .time-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .dash-cell {
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .ot-highlight {
+            color: var(--warning);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* FOOTER */
+        .mes-footer {
+            text-align: center;
+            padding: 1.5rem 0 0.5rem 0;
+            margin-top: auto;
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+        
+        .footer-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-online {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        @keyframes fillProgress {
+            from { width: 0; }
+        }
+
+        /* REDUCED MOTION ACCESSIBILITY */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1024px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            .mini-kpi-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .mes-header {
+                flex-direction: column;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+            .header-right {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .kpi-main-group {
+                grid-template-columns: 1fr;
+            }
+            .mini-kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .filter-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .filter-controls {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .input-group, .select-wrapper {
+                flex-grow: 1;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .filter-controls { flex-direction: column; }
+            .input-group, .select-wrapper, .mes-select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout-container">
+        
+        <!-- HEADER -->
+        <header class="mes-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <!-- Unicode fallback if FA fails: ⏱ -->
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div class="header-title">
+                    <h1>REKOD KEHADIRAN & OT</h1>
+                    <p>Attendance & Overtime Monitoring</p>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="system-status-wrap">
+                    <div class="sys-status">
+                        <span class="status-dot"></span> SYSTEM ONLINE
+                    </div>
+                    <div class="sys-clock" id="liveClock">
+                        SYSTEM TIME
+                    </div>
+                </div>
+                <!-- WAJIB: Link Navigation -->
+                <a href="menu_manager.html" class="btn-back">
+                    <i class="fa-solid fa-arrow-left"></i> MANAGEMENT CENTER
+                </a>
+            </div>
+        </header>
+
+        <!-- SUMMARY CARDS & KPIs -->
+        <div class="summary-grid">
+            
+            <div class="kpi-main-group">
+                <!-- CARD 1 -->
+                <div class="sum-card card-hadir">
+                    <div class="sum-title">
+                        KEHADIRAN HARI INI
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="sum-value">12 <span class="sum-sub">/ 15</span></div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Attendance Today</span>
+                            <span>80%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <!-- HTML driven progress width for safety -->
+                            <div class="progress-fill" style="width: 80%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2 -->
+                <div class="sum-card card-ot">
+                    <div class="sum-title">
+                        ANGGARAN TOTAL OT
+                        <i class="fa-solid fa-stopwatch"></i>
+                    </div>
+                    <div class="sum-value">24 <span class="sum-sub">JAM</span></div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span style="color: var(--warning)">2 Operator OT</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MINI KPIs -->
+            <div class="mini-kpi-grid">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-val">15</span>
+                    <span class="mini-kpi-label">TOTAL OPERATOR</span>
+                </div>
+                <div class="mini-kpi">
+                    <span class="mini-kpi-val" style="color: var(--success)">12</span>
+                    <span class="mini-kpi-label">HADIR</span>
+                </div>
+                <div class="mini-kpi">
+                    <span class="mini-kpi-val" style="color: var(--warning)">1</span>
+                    <span class="mini-kpi-label">MC / CUTI</span>
+                </div>
+                <div class="mini-kpi">
+                    <span class="mini-kpi-val" style="color: var(--cyan)">2</span>
+                    <span class="mini-kpi-label">OT</span>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- FILTER TOOLBAR -->
+        <div class="filter-toolbar">
+            <div class="toolbar-title">
+                <i class="fa-solid fa-list-check"></i> ATTENDANCE RECORDS
+            </div>
+            
+            <div class="filter-controls">
+                <div class="input-group">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" class="mes-input" placeholder="Search Operator...">
+                </div>
+                
+                <div class="select-wrapper">
+                    <select id="statusFilter" class="mes-input mes-select">
+                        <option value="all">Semua Status</option>
+                        <option value="hadir">Hadir</option>
+                        <option value="mc">MC / Cuti</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <!-- Date input fallback -->
+                    <input type="date" class="mes-input" value="2026-10-07">
+                </div>
+            </div>
+        </div>
+
+        <!-- DATA TABLE -->
+        <!-- Wrapper prevents page horizontal overflow on mobile -->
+        <div class="table-wrapper">
+            <table class="mes-table" id="dataTable">
+                <thead>
+                    <tr>
+                        <th>OPERATOR</th>
+                        <th>STATUS</th>
+                        <th>TIME IN</th>
+                        <th>TIME OUT</th>
+                        <th>JAM BEKERJA</th>
+                        <th>JAM OT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1 -->
+                    <tr class="data-row" data-status="hadir">
+                        <td>
+                            <div class="op-cell">
+                                <div class="operator-id">OP101</div>
+                                <div class="operator-name">Ali</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-hadir">
+                                <span class="badge-dot"></span> HADIR
+                            </span>
+                        </td>
+                        <td class="time-cell">08:00 AM</td>
+                        <td class="time-cell">07:00 PM</td>
+                        <td class="time-cell">8 Jam</td>
+                        <td>
+                            <span class="ot-highlight">+2 JAM</span>
+                        </td>
+                    </tr>
+
+                    <!-- Row 2 -->
+                    <tr class="data-row" data-status="hadir">
+                        <td>
+                            <div class="op-cell">
+                                <div class="operator-id">OP102</div>
+                                <div class="operator-name">Muthu</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-hadir">
+                                <span class="badge-dot"></span> HADIR
+                            </span>
+                        </td>
+                        <td class="time-cell">08:15 AM</td>
+                        <td class="time-cell">09:00 PM</td>
+                        <td class="time-cell">8 Jam</td>
+                        <td>
+                            <span class="ot-highlight">+4 JAM</span>
+                        </td>
+                    </tr>
+
+                    <!-- Row 3 -->
+                    <tr class="data-row" data-status="mc">
+                        <td>
+                            <div class="op-cell">
+                                <div class="operator-id">OP103</div>
+                                <div class="operator-name">Chong</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-mc">
+                                <span class="badge-dot"></span> MC / CUTI
+                            </span>
+                        </td>
+                        <td class="dash-cell">-</td>
+                        <td class="dash-cell">-</td>
+                        <td class="dash-cell">-</td>
+                        <td class="dash-cell">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="mes-footer">
+            <div class="footer-text">
+                MES • FACTORY DIGITAL OPERATIONS<br>
+                Attendance & Overtime Monitoring
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- JAVASCRIPT ENHANCEMENTS -->
+    <!-- Safe Vanilla JS: Does not block rendering, handles errors gracefully -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            
+            // 1. Current Time Enhancement
+            try {
+                function updateClock() {
+                    const now = new Date();
+                    const dateOptions = { day: '2-digit', month: 'short', year: 'numeric' };
+                    const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+                    
+                    const dateStr = now.toLocaleDateString('en-GB', dateOptions).toUpperCase();
+                    const timeStr = now.toLocaleTimeString('en-US', timeOptions);
+                    
+                    const clockEl = document.getElementById('liveClock');
+                    if (clockEl) {
+                        clockEl.textContent = `${dateStr}  ${timeStr}`;
+                    }
+                }
+                updateClock();
+                setInterval(updateClock, 1000);
+            } catch (err) {
+                console.warn("Clock enhancement failed", err);
+            }
+
+            // 2. Search and Filter Logic
+            try {
+                const searchInput = document.getElementById('searchInput');
+                const statusFilter = document.getElementById('statusFilter');
+                const rows = document.querySelectorAll('.data-row');
+
+                function filterTable() {
+                    const searchTerm = searchInput.value.toLowerCase().trim();
+                    const statusVal = statusFilter.value;
+
+                    rows.forEach(row => {
+                        // Get Operator ID and Name from the row
+                        const opId = row.querySelector('.operator-id').textContent.toLowerCase();
+                        const opName = row.querySelector('.operator-name').textContent.toLowerCase();
+                        
+                        // Get Data Status
+                        const rowStatus = row.getAttribute('data-status');
+
+                        // Match logic
+                        const matchesSearch = opId.includes(searchTerm) || opName.includes(searchTerm);
+                        const matchesStatus = (statusVal === 'all') || (rowStatus === statusVal);
+
+                        // Apply visibility class
+                        if (matchesSearch && matchesStatus) {
+                            row.classList.remove('hidden');
+                        } else {
+                            row.classList.add('hidden');
+                        }
+                    });
+                }
+
+                if (searchInput && statusFilter) {
+                    searchInput.addEventListener('keyup', filterTable);
+                    statusFilter.addEventListener('change', filterTable);
+                }
+            } catch (err) {
+                console.warn("Filter enhancement failed", err);
+            }
+
+        });
+    </script>
+</body>
+</html>
