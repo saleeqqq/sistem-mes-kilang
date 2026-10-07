@@ -194,4 +194,893 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 5px;
-            border-bottom: 1px solid rgba(255,255,
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 8px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+        .form-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .mes-input {
+            width: 100%;
+            min-height: var(--touch-target);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            padding: 0 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            outline: none;
+            transition: var(--transition-smooth);
+            appearance: none;
+        }
+
+        .mes-select {
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 12px auto;
+            padding-right: 40px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .mes-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        }
+
+        .mes-input:disabled {
+            opacity: 0.6;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: not-allowed;
+            border-style: dashed;
+        }
+
+        .scan-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-qr {
+            min-height: var(--touch-target);
+            padding: 0 20px;
+            background: rgba(14, 165, 233, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            white-space: nowrap;
+        }
+
+        .btn-qr:hover, .btn-qr:active {
+            background: var(--accent-cyan);
+            color: #fff;
+            box-shadow: var(--glow-cyan);
+        }
+
+        /* --- LIVE TIMER HERO --- */
+        .timer-hero {
+            background: linear-gradient(to bottom, #0f172a, #020617);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            /* Default Neutral State */
+            background: rgba(59, 130, 246, 0.15) !important;
+            color: var(--status-neutral) !important;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: var(--transition-smooth);
+        }
+        
+        /* JavaScript overrides inline styles, we need important or specific selectors */
+        .timer-hero[data-state="RUNNING"] .status-badge {
+            background: rgba(16, 185, 129, 0.15) !important;
+            color: var(--status-online) !important;
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .timer-hero[data-state="DOWNTIME"] .status-badge {
+            background: rgba(245, 158, 11, 0.15) !important;
+            color: var(--status-warning) !important;
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+        }
+        
+        .timer-hero[data-state="SELESAI"] .status-badge {
+            background: rgba(239, 68, 68, 0.15) !important;
+            color: var(--status-error) !important;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .time-main {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+
+        .timer-hero[data-state="RUNNING"] .time-main { color: var(--status-online); text-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+        .timer-hero[data-state="DOWNTIME"] .time-main { opacity: 0.7; }
+        .timer-hero[data-state="SELESAI"] .time-main { color: var(--status-error); }
+
+        .time-pause {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--status-warning);
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        #downtimeReasonDisplay {
+            color: var(--status-warning);
+            font-size: 0.8rem;
+            margin-top: 8px;
+            background: rgba(245, 158, 11, 0.1);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+        #downtimeReasonDisplay:empty { display: none; }
+
+        /* --- CONTROL BUTTONS --- */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-control {
+            min-height: 60px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            text-transform: uppercase;
+        }
+
+        .btn-control:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-start {
+            grid-column: span 2;
+            background: var(--status-online);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .btn-start:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+        .btn-start:not(:disabled):active { transform: translateY(1px); }
+
+        .btn-pause {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--status-warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .btn-pause:not(:disabled):hover { background: var(--status-warning); color: #000; }
+
+        .btn-stop {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--status-error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .btn-stop:not(:disabled):hover { background: var(--status-error); color: #fff; }
+
+        /* --- MODALS (SCANNER, DOWNTIME, STOP) --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 1000;
+            padding: 20px;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease-out;
+            position: relative;
+        }
+
+        .modal-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .modal-header i { font-size: 2rem; }
+        .modal-amber { color: var(--status-warning); border-top: 4px solid var(--status-warning); }
+        .modal-cyan { color: var(--accent-cyan); border-top: 4px solid var(--accent-cyan); }
+
+        .btn-primary {
+            width: 100%;
+            min-height: 50px;
+            background: var(--accent-cyan);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: var(--transition-smooth);
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-primary:hover { background: var(--accent-blue); }
+
+        .btn-close-modal {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 30px; height: 30px;
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 50%;
+        }
+        .btn-close-modal:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+        /* Scanner Specific */
+        #qrModal .modal-content { max-width: 500px; background: #000; border: 1px solid var(--accent-cyan); padding: 15px; border-radius: 12px; }
+        #reader { width: 100%; border-radius: 8px; overflow: hidden; background: #111; }
+        #loadingText { color: var(--accent-cyan) !important; font-family: 'JetBrains Mono'; font-size: 0.9rem; }
+        #reader video { border-radius: 8px; }
+
+        /* Output / Submit Specific */
+        .qty-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+        .qty-input { text-align: center; font-size: 1.5rem; font-weight: 700; height: 70px; background: rgba(0,0,0,0.4); }
+        .reject-input { border: 1px solid rgba(239, 68, 68, 0.5) !important; color: var(--status-error) !important; }
+        .reject-input:focus { border-color: var(--status-error) !important; box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important; }
+
+        /* Summary before submit */
+        .submit-summary {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 5px;}
+        .summary-val { color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-weight: 500; text-align: right;}
+
+        /* Modals compatibility with existing IDs */
+        #downtimeModal { display: none; }
+        #stopModal { display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. SCANNER MODAL (Re-styled) -->
+    <div id="qrModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="btn-close-modal" onclick="tutupScanner()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header" style="color: var(--accent-cyan); border:none; margin-bottom: 10px;">
+                <i class="fa-solid fa-qrcode"></i>
+                <span>SCAN PROCESS QR</span>
+            </div>
+            <p style="text-align:center; font-size:0.8rem; color:var(--text-secondary); margin-bottom:15px;">Align QR code inside the frame</p>
+            
+            <div id="reader">
+                <span id="loadingText"><i class="fa-solid fa-circle-notch fa-spin"></i> Activating Camera...</span>
+            </div>
+            
+            <button onclick="tutupScanner()" class="btn-primary" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); margin-top: 15px;">
+                TUTUP SCANNER
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="mes-container">
+        
+        <!-- HEADER -->
+        <header class="op-header">
+            <div class="header-brand">
+                <div class="brand-title"><i class="fa-solid fa-industry"></i> MES TERMINAL</div>
+                <div class="brand-subtitle">Production Floor Node</div>
+            </div>
+            <div class="sys-status">
+                <div class="status-indicator"><span class="status-dot"></span> ONLINE</div>
+                <div class="sys-clock" id="liveClock">--:--</div>
+            </div>
+        </header>
+
+        <!-- OPERATOR PROFILE -->
+        <div class="op-profile">
+            <div class="op-avatar"><i class="fa-solid fa-user-gear"></i></div>
+            <div class="op-info">
+                <span class="op-label">Active Operator</span>
+                <span class="op-name" id="opNameDisplay">Loading...</span>
+            </div>
+            <input type="text" id="idInput" readonly> <!-- Hidden, retained for payload -->
+        </div>
+
+        <!-- PROCESS INPUTS -->
+        <div class="mes-card">
+            <div class="card-title"><i class="fa-solid fa-gears"></i> Process Configuration</div>
+            
+            <div class="form-group">
+                <label class="form-label">Primary Process</label>
+                <div class="scan-group">
+                    <select id="prosesUtama" class="mes-input mes-select" onchange="kemaskiniSubProses()" style="flex: 1;">
+                        <option value="">-- Manual Select / Scan --</option>
+                        <option value="Welding">Welding</option>
+                        <option value="Shear Cut">Shear Cut</option>
+                        <option value="Flattening">Flattening</option>
+                        <option value="Trimming">Trimming</option>
+                        <option value="Trimming HTM">Trimming HTM</option>
+                        <option value="Angle Press">Angle Press</option>
+                        <option value="Netting Checking">Netting Checking</option>
+                        <option value="Bundle Packing">Bundle Packing</option>
+                        <option value="Pallet Packing">Pallet Packing</option>
+                    </select>
+                    <button class="btn-qr" onclick="bukaScanner()" id="btnScannerUI">
+                        <i class="fa-solid fa-qrcode"></i> SCAN
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Fields (Hidden initially) -->
+            <div class="form-group" id="divSubProses" style="display: none;">
+                <label class="form-label">Sub-Process / Stage</label>
+                <select id="subProses" class="mes-input mes-select" style="border-left: 3px solid var(--accent-cyan);"></select>
+            </div>
+
+            <div class="form-group" id="divMesin" style="display: none;">
+                <label class="form-label">Machine Number</label>
+                <select id="mesinSelect" class="mes-input mes-select" style="border-left: 3px solid var(--accent-amber);"></select>
+            </div>
+        </div>
+
+        <!-- PRODUCT INPUTS -->
+        <div class="mes-card">
+            <div class="card-title"><i class="fa-solid fa-box"></i> Product Identifiers</div>
+            
+            <div class="form-group">
+                <label class="form-label">Article No.</label>
+                <input type="text" id="artikelInput" class="mes-input" placeholder="e.g., ART-1234" autocomplete="off" style="text-transform: uppercase;">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Job Order (JO)</label>
+                <input type="text" id="joInput" class="mes-input" placeholder="e.g., JO-9992" autocomplete="off" style="text-transform: uppercase;">
+            </div>
+        </div>
+
+        <!-- LIVE TIMER HERO -->
+        <div class="timer-hero" id="timerContainer" data-state="SEDIA">
+            <div class="status-badge" id="statusBadge"><i class="fa-solid fa-power-off" style="margin-right:5px"></i> SEDIA</div>
+            <div class="time-main" id="mainTime">00:00:00</div>
+            <div class="time-pause" id="pauseTime">Downtime: 00:00:00</div>
+            <div id="downtimeReasonDisplay"></div>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="controls-grid">
+            <button class="btn-control btn-start" id="btnStart" onclick="mulaProses()">
+                <i class="fa-solid fa-play"></i> START PROCESS
+            </button>
+            <button class="btn-control btn-pause" id="btnPause" onclick="bukaModalDowntime()" disabled>
+                <i class="fa-solid fa-pause"></i> BREAKDOWN
+            </button>
+            <button class="btn-control btn-stop" id="btnStop" onclick="bukaModalStop()" disabled>
+                <i class="fa-solid fa-stop"></i> STOP
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 2. DOWNTIME MODAL (Re-styled, logic retained) -->
+    <div id="downtimeModal" class="modal-overlay">
+        <div class="modal-content modal-amber">
+            <button class="btn-close-modal" onclick="tutupDowntimeModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>RECORD DOWNTIME</span>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Sebab Downtime</label>
+                <select id="sebabDowntime" class="mes-input mes-select" style="background: rgba(255,255,255,0.05);">
+                    <option value="Tandas/Rehat">Ke Tandas / Rehat</option>
+                    <option value="Mesin Rosak">Mesin Breakdown / Repair</option>
+                    <option value="Tunggu Material">Menunggu Material</option>
+                </select>
+            </div>
+            
+            <button class="btn-primary" style="background: var(--status-warning); color: #000;" onclick="sahkanDowntime()">
+                <i class="fa-solid fa-check"></i> CONFIRM DOWNTIME
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. STOP / SUBMIT MODAL (Re-styled, logic retained) -->
+    <div id="stopModal" class="modal-overlay">
+        <div class="modal-content modal-cyan">
+            <div class="modal-header">
+                <i class="fa-solid fa-flag-checkered"></i>
+                <span>PRODUCTION COMPLETION</span>
+            </div>
+            
+            <div class="qty-grid">
+                <div class="form-group">
+                    <label class="form-label" style="justify-content:center; color: var(--status-online);">TOTAL OUTPUT</label>
+                    <input type="number" id="outputInput" class="mes-input qty-input" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="justify-content:center; color: var(--status-error);">REJECT</label>
+                    <input type="number" id="rejectInput" class="mes-input qty-input reject-input" value="0">
+                </div>
+            </div>
+
+            <!-- Auto-generated Summary -->
+            <div class="submit-summary" id="submitSummary">
+                <!-- Injected via JS before submit -->
+            </div>
+            
+            <button id="btnSubmit" class="btn-primary" onclick="hantarData()">
+                <i class="fa-solid fa-rocket"></i> SUBMIT REPORT
+            </button>
+            <button class="btn-primary" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border-light); min-height: 40px; margin-top: 10px;" onclick="batalStop()">
+                BATAL & KEMBALI
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LAMA (DENGAN PENAMBAHBAIKAN UI) -->
+    <!-- ========================================== -->
+    <script>
+        // ------------------------------------
+        // JAM PENDEK UNTUK HEADER
+        // ------------------------------------
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('liveClock').innerText = now.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
+        }, 1000);
+
+        // ------------------------------------
+        // URL WEB APP KAU (TIDAK BERUBAH)
+        // ------------------------------------
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsLi9Asv8TPb1nD0LPoMfoPRcsn10D-1mq2dydEceU0sWqrimVZinpzprA1D7E30Tb/exec";
+
+        let namaOperator = localStorage.getItem("mes_nama");
+        let idOperator = localStorage.getItem("mes_username");
+
+        if(namaOperator && idOperator) {
+            // UI Profile Update
+            document.getElementById("opNameDisplay").innerText = namaOperator + " (" + idOperator + ")";
+            
+            // Original hidden input payload
+            let inputId = document.getElementById("idInput");
+            inputId.value = idOperator;
+        } else {
+            alert("Sila log masuk terlebih dahulu!");
+            window.location.href = "index.html";
+        }
+
+        // ==========================================
+        // FUNGSI JANA DROPDOWN SUB & MESIN
+        // ==========================================
+        function kemaskiniSubProses() {
+            let proses = document.getElementById("prosesUtama").value;
+            let divSub = document.getElementById("divSubProses");
+            let selSub = document.getElementById("subProses");
+            let divMesin = document.getElementById("divMesin");
+            let selMesin = document.getElementById("mesinSelect");
+
+            selSub.innerHTML = "";
+            selMesin.innerHTML = "";
+
+            if(proses) {
+                divSub.style.display = "flex"; // Changed from block to flex for CSS compatibility
+                
+                let kod = proses.charAt(0); 
+                if (proses === "Shear Cut") kod = "SC";
+                else if (proses === "Trimming HTM") kod = "TH";
+                else if (proses === "Angle Press") kod = "AP";
+                else if (proses === "Netting Checking") kod = "NC";
+                else if (proses === "Bundle Packing") kod = "BP";
+                else if (proses === "Pallet Packing") kod = "PP";
+                
+                selSub.innerHTML += `<option value="${proses}">Peringkat Biasa / Penuh</option>`;
+                selSub.innerHTML += `<option value="${kod}-1">${proses} 1 (${kod}-1)</option>`;
+                selSub.innerHTML += `<option value="${kod}-2">${proses} 2 (${kod}-2)</option>`;
+                selSub.innerHTML += `<option value="${kod}-3">${proses} 3 (${kod}-3)</option>`;
+                selSub.innerHTML += `<option value="${kod}-4">${proses} 4 (${kod}-4)</option>`;
+
+                if(proses === "Welding") {
+                    divMesin.style.display = "flex";
+                    selMesin.innerHTML += `<option value="">-- Sila Pilih Mesin --</option>`;
+                    for(let i=1; i<=12; i++) {
+                        selMesin.innerHTML += `<option value="W${i}">Mesin W${i}</option>`;
+                    }
+                } else {
+                    divMesin.style.display = "none";
+                }
+            } else {
+                divSub.style.display = "none"; divMesin.style.display = "none";
+            }
+        }
+
+        // ==========================================
+        // OTAK SCANNER PINTAR
+        // ==========================================
+        let html5QrCode = null;
+
+        function bukaScanner() {
+            document.getElementById("qrModal").style.display = "flex"; // Changed for overlay centering
+            let loadingText = document.getElementById("loadingText");
+            if(loadingText) loadingText.style.display = "block";
+            
+            if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
+            
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length) {
+                    let cameraId = devices[devices.length - 1].id;
+                    
+                    for(let i=0; i<devices.length; i++) {
+                        if(devices[i].label.toLowerCase().includes("back") || devices[i].label.toLowerCase().includes("belakang") || devices[i].label.toLowerCase().includes("environment")) {
+                            cameraId = devices[i].id;
+                            break;
+                        }
+                    }
+
+                    html5QrCode.start(
+                        cameraId, 
+                        { fps: 10, qrbox: { width: 250, height: 250 } },
+                        onScanSuccess,
+                        onScanFailure
+                    ).then(() => {
+                        if(loadingText) loadingText.style.display = "none";
+                    }).catch((err) => {
+                        alert("Sila beri kebenaran (Allow) untuk akses kamera. Error: " + err);
+                        tutupScanner();
+                    });
+
+                } else {
+                    alert("Tiada lensa kamera dikesan pada peranti ini!");
+                    tutupScanner();
+                }
+            }).catch(err => {
+                html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onScanSuccess,
+                    onScanFailure
+                ).catch((err2) => {
+                    alert("Kamera disekat oleh browser. Sila 'Allow Camera'.");
+                    tutupScanner();
+                });
+            });
+        }
+
+        function tutupScanner() {
+            document.getElementById("qrModal").style.display = "none";
+            if (html5QrCode) { 
+                html5QrCode.stop().then(() => { html5QrCode.clear(); }).catch((err) => { console.log(err); });
+            }
+        }
+
+        // Kustomisasi Alert Berjaya untuk elak native alert (opsyenal tapi kekal guna logic lama)
+        function customAlert(msg) {
+            // For true 100% logic retention, we use native alert as requested, 
+            // but we format it nicely.
+            alert(msg);
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            tutupScanner(); 
+            let textScan = decodedText.toUpperCase().trim(); 
+            let selectUtama = document.getElementById("prosesUtama");
+            
+            let matchedUtama = "";
+            let matchedSub = "";
+            let matchedMesin = "";
+
+            // 1. KESAN SCAN MESIN WELDING (W1 - W12)
+            let cariMesin = textScan.match(/W([1-9]|1[0-2])/); // Corrected regex for general match
+            if (cariMesin && !textScan.includes("W-")) {
+                matchedUtama = "Welding";
+                matchedMesin = "W" + cariMesin[1]; 
+            }
+
+            // 2. KESAN SCAN PERINGKAT WELDING (W-1 - W-4)
+            let cariProsesW = textScan.match(/W-([1-4])/);
+            if (cariProsesW) {
+                matchedUtama = "Welding";
+                matchedSub = "W-" + cariProsesW[1]; 
+            }
+
+            // 3. KESAN PROSES LAIN
+            if (!matchedUtama) {
+                for (let i = 0; i < selectUtama.options.length; i++) {
+                    let optVal = selectUtama.options[i].value; 
+                    if(!optVal) continue;
+                    
+                    let kod = optVal.charAt(0);
+                    if (optVal === "Shear Cut") kod = "SC";
+                    else if (optVal === "Trimming HTM") kod = "TH";
+                    else if (optVal === "Angle Press") kod = "AP";
+                    else if (optVal === "Netting Checking") kod = "NC";
+                    else if (optVal === "Bundle Packing") kod = "BP";
+                    else if (optVal === "Pallet Packing") kod = "PP";
+
+                    let namaProses = optVal.toUpperCase(); 
+                    
+                    if (textScan.includes(namaProses) || textScan.includes(kod + "-")) {
+                        matchedUtama = optVal;
+                        let cariSubLain = textScan.match(new RegExp(kod + "-([1-4])"));
+                        if(cariSubLain) {
+                            matchedSub = kod + "-" + cariSubLain[1];
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // TINDAKAN JIKA BERJAYA SCAN
+            if (matchedUtama || textScan === "WELDING") {
+                if (!matchedUtama) matchedUtama = "Welding"; 
+                
+                let mesej = "✅ QR DITERIMA\nProses: " + matchedUtama;
+                if (matchedMesin) mesej += "\nMesin: " + matchedMesin;
+                if (matchedSub) mesej += "\nTahap: " + matchedSub;
+                customAlert(mesej);
+                
+                selectUtama.value = matchedUtama;
+                kemaskiniSubProses(); 
+                
+                setTimeout(() => {
+                    if(matchedSub) document.getElementById("subProses").value = matchedSub;
+                    if(matchedMesin) document.getElementById("mesinSelect").value = matchedMesin;
+                }, 50);
+
+            } else {
+                customAlert("❌ QR DITOLAK. Kod '" + textScan + "' tidak dikenali sistem.");
+            }
+        }
+        function onScanFailure(error) { /* Sedang scan, abaikan */ }
+
+        // ==========================================
+        // FUNGSI JAM & UI STATE
+        // ==========================================
+        let waktuMulaKerja = 0, waktuTamatKerja = 0, waktuMulaRehat = 0, totalRehatSaat = 0, UI_Interval = null, sedangRehat = false, sebabDowntimeTerkini = "Tiada";
+        
+        const statusBadge = document.getElementById("statusBadge");
+        const timerContainer = document.getElementById("timerContainer"); // For UI styling hooks
+
+        function formatMasa(totalSaat) {
+            let j = Math.floor(totalSaat / 3600), m = Math.floor((totalSaat - (j * 3600)) / 60), s = Math.floor(totalSaat - (j * 3600) - (m * 60));
+            return `${String(j).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+        
+        function formatWaktu(ms) {
+            if(!ms) return "-";
+            return new Date(ms).toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+
+        // Fungsi Tukar Style Native Kepada CSS State-Based
+        function updateTimerUI(state, badgeHtml) {
+            timerContainer.setAttribute('data-state', state);
+            statusBadge.innerHTML = badgeHtml;
+            // Native code changes inline style, we clear it to let CSS take over
+            statusBadge.style.background = ""; 
+            statusBadge.style.color = "";
+        }
+
+        function mulaProses() {
+            let proses = document.getElementById("prosesUtama").value;
+            let sub = document.getElementById("subProses").value;
+            let art = document.getElementById("artikelInput").value;
+
+            if(!proses || !sub || !art) { alert("Isi Artikel, Proses Utama & Sub-Proses dahulu!"); return; }
+            if(proses === "Welding" && !document.getElementById("mesinSelect").value) { alert("Sila pilih Mesin Welding!"); return; }
+
+            document.getElementById("prosesUtama").disabled = true; document.getElementById("subProses").disabled = true;
+            document.getElementById("mesinSelect").disabled = true; document.getElementById("artikelInput").disabled = true;
+            document.getElementById("joInput").disabled = true; 
+            document.getElementById("btnScannerUI").style.display = "none";
+            
+            document.getElementById("btnStart").style.display = "none";
+            document.getElementById("btnPause").disabled = false; 
+            document.getElementById("btnStop").disabled = false;
+
+            waktuMulaKerja = Date.now(); 
+            jalankanVisualJam();
+        }
+
+        function jalankanVisualJam() {
+            sedangRehat = false; 
+            updateTimerUI("RUNNING", '<i class="fa-solid fa-person-digging" style="margin-right:5px"></i> RUNNING');
+            
+            let btnPause = document.getElementById("btnPause"); 
+            btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> BREAKDOWN'; 
+            btnPause.onclick = bukaModalDowntime;
+            
+            document.getElementById("btnStop").disabled = false;
+            
+            clearInterval(UI_Interval);
+            UI_Interval = setInterval(() => { 
+                document.getElementById("mainTime").innerText = formatMasa(((Date.now() - waktuMulaKerja) / 1000) - totalRehatSaat); 
+            }, 1000);
+        }
+
+        function bukaModalDowntime() {
+            clearInterval(UI_Interval); 
+            document.getElementById("downtimeModal").style.display = "flex"; // Overlay mode
+            document.getElementById("btnPause").disabled = true; 
+            document.getElementById("btnStop").disabled = true;
+        }
+
+        function tutupDowntimeModal() {
+            // Jika batal downtime (X), kembali running
+            document.getElementById("downtimeModal").style.display = "none";
+            jalankanVisualJam();
+        }
+
+        function sahkanDowntime() {
+            document.getElementById("downtimeModal").style.display = "none";
+            sebabDowntimeTerkini = document.getElementById("sebabDowntime").value;
+            
+            updateTimerUI("DOWNTIME", '<i class="fa-solid fa-triangle-exclamation" style="margin-right:5px"></i> DOWNTIME');
+            document.getElementById("downtimeReasonDisplay").innerText = "Reason: " + sebabDowntimeTerkini;
+
+            waktuMulaRehat = Date.now(); sedangRehat = true;
+            
+            let btnPause = document.getElementById("btnPause"); 
+            btnPause.disabled = false; 
+            btnPause.innerHTML = '<i class="fa-solid fa-play"></i> RESUME';
+            
+            btnPause.onclick = function() {
+                totalRehatSaat += (Date.now() - waktuMulaRehat) / 1000;
+                document.getElementById("downtimeReasonDisplay").innerText = "";
+                document.getElementById("pauseTime").innerText = "Downtime: " + formatMasa(totalRehatSaat);
+                jalankanVisualJam();
+            };
+        }
+
+        function bukaModalStop() {
+            clearInterval(UI_Interval); 
+            waktuTamatKerja = Date.now(); 
+            if(sedangRehat) totalRehatSaat += (waktuTamatKerja - waktuMulaRehat) / 1000;
+
+            document.getElementById("btnPause").disabled = true; 
+            document.getElementById("btnStop").disabled = true;
+            
+            updateTimerUI("SELESAI", '<i class="fa-solid fa-flag-checkered" style="margin-right:5px"></i> SELESAI');
+            
+            // Build visual summary for operator
+            let p = document.getElementById("prosesUtama").value;
+            let m = document.getElementById("mesinSelect").value;
+            let a = document.getElementById("artikelInput").value;
+            document.getElementById("submitSummary").innerHTML = `
+                <div class="summary-row"><span>Process</span><span class="summary-val">${p} ${m ? '('+m+')' : ''}</span></div>
+                <div class="summary-row"><span>Article</span><span class="summary-val">${a.toUpperCase()}</span></div>
+                <div class="summary-row"><span>Time Elapsed</span><span class="summary-val">${document.getElementById("mainTime").innerText}</span></div>
+            `;
+            
+            document.getElementById("stopModal").style.display = "flex"; // overlay
+        }
+
+        function batalStop() {
+            // In case operator accidentally press stop and want to cancel
+            document.getElementById("stopModal").style.display = "none";
+            jalankanVisualJam();
+        }
+
+        function hantarData() {
+            let output = parseInt(document.getElementById("outputInput").value);
+            let reject = parseInt(document.getElementById("rejectInput").value) || 0;
+            if(!output && output !== 0) { alert("Sila masukkan Total Output!"); return; } 
+            
+            let btn = document.getElementById("btnSubmit");
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGHANTAR...'; 
+            btn.disabled = true; 
+            btn.style.opacity = "0.7";
+
+            let prosesUtama = document.getElementById("prosesUtama").value;
+            let subProses = document.getElementById("subProses").value;
+            let namaProsesAkhir = prosesUtama + (subProses !== prosesUtama ? " (" + subProses + ")" : "");
+            
+            if(prosesUtama === "Welding") {
+                namaProsesAkhir += " [Mesin: " + document.getElementById("mesinSelect").value + "]";
+            }
+
+            let dataPayload = {
+                "id_operator": document.getElementById("idInput").value,
+                "no_artikel": document.getElementById("artikelInput").value.toUpperCase(),
+                "job_order": document.getElementById("joInput").value.toUpperCase() || "-",
+                "proses": namaProsesAkhir, 
+                "output": output,
+                "reject": reject,
+                "downtime": Math.floor(totalRehatSaat / 60) + " minit", 
+                "time_start": formatWaktu(waktuMulaKerja), 
+                "time_end": formatWaktu(waktuTamatKerja)   
+            };
+
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(dataPayload) })
+            .then(res => res.json()).then(res => {
+                alert("✅ LAPORAN BERJAYA DISIMPAN!"); 
+                window.location.reload(); 
+            }).catch(err => {
+                alert("❌ Ralat hantar data. Sila semak internet dan cuba lagi."); 
+                btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> CUBA LAGI'; 
+                btn.disabled = false; 
+                btn.style.opacity = "1";
+            });
+        }
+    </script>
+</body>
+</html>
